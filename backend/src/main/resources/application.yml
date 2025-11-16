@@ -3,6 +3,17 @@ spring:
     mongodb:
       uri: ${MONGODB_URI:mongodb+srv://sangu:Mongodb2156@cluster0.g9jaxlb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0}
       database: ${MONGODB_DATABASE:rentease}
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   security:
     oauth2:
       client:
@@ -19,8 +30,17 @@ spring:
             authorization-uri: https://accounts.google.com/o/oauth2/auth
             token-uri: https://oauth2.googleapis.com/token
             user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+
 server:
   port: ${PORT:8080}
+
 logging:
   level:
     root: INFO
+
+app:
+  frontend-url: ${FRONTEND_URL:http://localhost:3000}
+
+# Groq API Configuration
+groq:
+  api-key: ${GROQ_API_KEY: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}  # <- Replace with your Groq API key

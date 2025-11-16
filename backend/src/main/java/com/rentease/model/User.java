@@ -26,5 +26,18 @@ public class User {
 
     private Set<String> roles; // e.g. ["USER", "ADMIN"]
 
+    @Builder.Default
     private boolean verified = false; // KYC/email verification later
+    
+    // Profile fields
+    private String profilePicture; // Base64 or URL
+    private String address;
+    private String city;
+    private String state;
+    private String pincode;
+    
+    // Aadhaar verification
+    private String aadhaarNumber; // Encrypted or hashed
+    @Builder.Default
+    private boolean aadhaarVerified = false;
 }

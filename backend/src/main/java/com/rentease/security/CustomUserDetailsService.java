@@ -21,11 +21,17 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        // Return UserDetails object (Spring Security will handle password/roles)
+        String password = user.getPassword();
+        if (password == null) {
+            // Assign a dummy password for OAuth2 users or missing passwords
+            password = "";
+        }
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
-                .password(user.getPassword())
+                .password(password)
                 .roles("USER")
                 .build();
     }
+
 }
