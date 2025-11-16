@@ -43,4 +43,4 @@ app:
 
 # Groq API Configuration
 groq:
-  api-key: ${GROQ_API_KEY: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}  # <- Replace with your Groq API key
+  api-key: ${GROQ_API_KEY:}  # <- Replace with your Groq API key
