@@ -1,0 +1,45 @@
+spring:
+  data:
+    mongodb:
+      uri: YOUR_MONGO_URI_HERE
+      database: rentease
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: YOUR_EMAIL_HERE
+    password: YOUR_APP_PASSWORD_HERE
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: YOUR_GOOGLE_CLIENT_ID
+            client-secret: YOUR_GOOGLE_CLIENT_SECRET
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/google"
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+
+server:
+  port: 8080
+
+logging:
+  level:
+    root: INFO
+
+app:
+  frontend-url: http://localhost:3000
+  secret-key: YOUR_SECRET_KEY_HERE
