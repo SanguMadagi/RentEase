@@ -15,21 +15,19 @@ const Navbar = () => {
         </BootstrapNavbar.Brand>
         <BootstrapNavbar.Toggle aria-controls="basic-navbar-nav" />
         <BootstrapNavbar.Collapse id="basic-navbar-nav">
-                 <Nav className="me-auto">
-                   <Nav.Link as={Link} to="/">
-                     Products
-                   </Nav.Link>
-                   {isAuthenticated && (
-                     <>
-                       <Nav.Link as={Link} to="/add-product">
-                         Add Product
-                       </Nav.Link>
-                       <Nav.Link as={Link} to="/chatbot">
-                         🤖 AI Assistant
-                       </Nav.Link>
-                     </>
-                   )}
-                 </Nav>
+          <Nav className="me-auto">
+            <Nav.Link as={Link} to="/">
+              Products
+            </Nav.Link>
+            {isAuthenticated && (
+              <>
+                <Nav.Link as={Link} to="/add-product">
+                  Add Product
+                </Nav.Link>
+                {/* AI Assistant removed for main branch */}
+              </>
+            )}
+          </Nav>
           <Nav>
             {isAuthenticated ? (
               <>
@@ -56,4 +54,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

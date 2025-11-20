@@ -25,6 +25,10 @@ public class ProductService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
+    public List<Product> getProductsByLenderId(String lenderId) {
+        return productRepository.findByLenderId(lenderId);
+    }
+
     public List<Product> findProductsByQuery(ProductSearchQuery query) {
         return productRepository.findAll().stream()
                 .filter(p -> query.getKeywords() == null || p.getName().toLowerCase().contains(query.getKeywords().toLowerCase()))

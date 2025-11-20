@@ -29,7 +29,7 @@ function ProductDetails() {
             });
             if (!response.ok) throw new Error('Failed to fetch product');
             const data = await response.json();
-            
+
             // Handle response with owner info or just product
             if (data.product) {
                 setProduct(data.product);
@@ -130,7 +130,7 @@ function ProductDetails() {
             });
 
             if (!response.ok) throw new Error('Review failed');
-            
+
             setRating(5);
             setComment('');
             fetchReviews();
@@ -142,8 +142,8 @@ function ProductDetails() {
         }
     }
 
-    useEffect(() => { 
-        fetchProduct(); 
+    useEffect(() => {
+        fetchProduct();
         fetchReviews();
         fetchUserProfile();
     }, [id]);
@@ -208,9 +208,9 @@ function ProductDetails() {
                                 </div>
                                 <h3 className="text-primary mb-0">₹{product.price}/day</h3>
                             </div>
-                            
+
                             <Card.Text className="lead">{product.description || "No description available"}</Card.Text>
-                            
+
                             {/* Location Section */}
                             {(product.locationName || (product.latitude && product.longitude)) && (
                                 <Card className="mt-3 mb-3 border-info">
@@ -250,8 +250,8 @@ function ProductDetails() {
                                         <h6 className="mb-0">📍 Map View</h6>
                                     </Card.Header>
                                     <Card.Body className="p-0">
-                                        <MapView 
-                                            latitude={product.latitude} 
+                                        <MapView
+                                            latitude={product.latitude}
                                             longitude={product.longitude}
                                             productName={product.name}
                                         />
@@ -260,18 +260,18 @@ function ProductDetails() {
                             )}
 
                             <div className="d-flex gap-2 mt-3">
-                                <Button 
-                                    variant="primary" 
-                                    size="lg" 
-                                    onClick={handleBooking} 
+                                <Button
+                                    variant="primary"
+                                    size="lg"
+                                    onClick={handleBooking}
                                     disabled={!product.available}
                                     className="flex-fill"
                                 >
                                     {!userProfile?.aadhaarVerified ? '🔒 Verify & Book' : '📅 Book Now'}
                                 </Button>
-                                <Button 
-                                    variant="outline-primary" 
-                                    size="lg" 
+                                <Button
+                                    variant="outline-primary"
+                                    size="lg"
                                     onClick={handleContactOwner}
                                     className="flex-fill"
                                 >
@@ -310,8 +310,8 @@ function ProductDetails() {
                             <Form>
                                 <Form.Group className="mb-3">
                                     <Form.Label>Rating</Form.Label>
-                                    <Form.Select 
-                                        value={rating} 
+                                    <Form.Select
+                                        value={rating}
                                         onChange={e => setRating(Number(e.target.value))}
                                     >
                                         {[1,2,3,4,5].map(n => (
@@ -333,8 +333,8 @@ function ProductDetails() {
                                     />
                                 </Form.Group>
 
-                                <Button 
-                                    variant="outline-primary" 
+                                <Button
+                                    variant="outline-primary"
                                     onClick={handleReview}
                                     disabled={reviewLoading || !comment.trim()}
                                 >
@@ -395,8 +395,8 @@ function ProductDetails() {
                         Close
                     </Button>
                     {owner?.phone && (
-                        <Button 
-                            variant="primary" 
+                        <Button
+                            variant="primary"
                             href={`tel:${owner.phone}`}
                             onClick={() => setShowContactModal(false)}
                         >
@@ -410,3 +410,4 @@ function ProductDetails() {
 }
 
 export default ProductDetails;
+

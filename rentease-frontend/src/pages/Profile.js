@@ -9,6 +9,9 @@ function Profile() {
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
     const [editMode, setEditMode] = useState(false);
+    const [myProducts, setMyProducts] = useState([]);
+    const [productsLoading, setProductsLoading] = useState(true);
+
     const navigate = useNavigate();
     const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
 
@@ -25,6 +28,7 @@ function Profile() {
 
     useEffect(() => {
         fetchProfile();
+        fetchMyProducts();
     }, []);
 
     const fetchProfile = async () => {
@@ -37,9 +41,7 @@ function Profile() {
                 },
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch profile');
-            }
+            if (!response.ok) throw new Error('Failed to fetch profile');
 
             const data = await response.json();
             setUser(data);
@@ -61,6 +63,23 @@ function Profile() {
         }
     };
 
+    const fetchMyProducts = async () => {
+        setProductsLoading(true);
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_BASE_URL}/api/products/my-products`, {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!res.ok) throw new Error('Failed to fetch products');
+            const data = await res.json();
+            setMyProducts(data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setProductsLoading(false);
+        }
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
@@ -69,7 +88,7 @@ function Profile() {
     const handleImageUpload = (e) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.size > 2 * 1024 * 1024) { // 2MB limit
+            if (file.size > 2 * 1024 * 1024) {
                 setError('Image size should be less than 2MB');
                 return;
             }
@@ -104,7 +123,7 @@ function Profile() {
 
             setSuccess('Profile updated successfully!');
             setEditMode(false);
-            fetchProfile(); // Refresh profile data
+            fetchProfile();
         } catch (err) {
             setError(err.message || 'Failed to update profile. Please try again.');
         } finally {
@@ -112,23 +131,37 @@ function Profile() {
         }
     };
 
-    if (loading) {
-        return (
-            <Container className="mt-5 text-center">
-                <Spinner animation="border" role="status">
-                    <span className="visually-hidden">Loading...</span>
-                </Spinner>
-            </Container>
-        );
-    }
+    const handleDeleteProduct = async (productId) => {
+        if (!window.confirm('Are you sure you want to delete this product?')) return;
 
-    if (!user) {
-        return (
-            <Container className="mt-5">
-                <Alert variant="danger">Failed to load profile</Alert>
-            </Container>
-        );
-    }
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${API_BASE_URL}/api/products/${productId}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+            });
+
+            if (!res.ok) throw new Error('Failed to delete product');
+
+            setMyProducts(prev => prev.filter(p => p.id !== productId));
+            alert('Product deleted successfully!');
+        } catch (err) {
+            console.error(err);
+            alert('Error deleting product.');
+        }
+    };
+
+    if (loading) return (
+        <Container className="mt-5 text-center">
+            <Spinner animation="border" role="status" />
+        </Container>
+    );
+
+    if (!user) return (
+        <Container className="mt-5">
+            <Alert variant="danger">Failed to load profile</Alert>
+        </Container>
+    );
 
     return (
         <Container className="mt-4 mb-5">
@@ -323,7 +356,7 @@ function Profile() {
                                             variant="outline-secondary"
                                             onClick={() => {
                                                 setEditMode(false);
-                                                fetchProfile(); // Reset form data
+                                                fetchProfile();
                                             }}
                                             disabled={saving}
                                         >
@@ -353,6 +386,40 @@ function Profile() {
                                     </Card.Body>
                                 </Card>
                             )}
+
+                            {/* My Products */}
+                            <div className="mt-5">
+                                <h4>My Listed Products</h4>
+                                {productsLoading ? (
+                                    <Spinner animation="border" />
+                                ) : (
+                                    <>
+                                        {myProducts.length === 0 ? (
+                                            <p>You have not listed any products yet.</p>
+                                        ) : (
+                                            <Row>
+                                                {myProducts.map(product => (
+                                                    <Col md={6} lg={4} key={product.id} className="mb-3">
+                                                        <Card>
+                                                            {product.images && product.images[0] && (
+                                                                <Card.Img variant="top" src={product.images[0]} style={{ height: '200px', objectFit: 'cover' }} />
+                                                            )}
+                                                            <Card.Body>
+                                                                <Card.Title>{product.name}</Card.Title>
+                                                                <Card.Text>₹{product.price} / day</Card.Text>
+                                                                <div className="d-flex justify-content-between">
+                                                                    <Button variant="outline-primary" size="sm" onClick={() => navigate(`/add-product/${product.id}`)}>✏️ Edit</Button>
+                                                                    <Button variant="outline-danger" size="sm" onClick={() => handleDeleteProduct(product.id)}>🗑 Delete</Button>
+                                                                </div>
+                                                            </Card.Body>
+                                                        </Card>
+                                                    </Col>
+                                                ))}
+                                            </Row>
+                                        )}
+                                    </>
+                                )}
+                            </div>
                         </Card.Body>
                     </Card>
                 </Col>
@@ -362,4 +429,3 @@ function Profile() {
 }
 
 export default Profile;
-

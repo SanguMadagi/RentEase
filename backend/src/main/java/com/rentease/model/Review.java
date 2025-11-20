@@ -1,10 +1,18 @@
 package com.rentease.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Document(collection = "reviews")
 public class Review {
     @Id
@@ -16,33 +24,4 @@ public class Review {
     private String comment;
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    // Constructors
-    public Review() {}
-
-    public Review(String productId, String userId, int rating, String comment) {
-        this.productId = productId;
-        this.userId = userId;
-        this.rating = rating;
-        this.comment = comment;
-        this.createdAt = LocalDateTime.now();
-    }
-
-    // Getters and Setters
-    public String getId() { return id; }
-    public void setId(String id) { this.id = id; }
-
-    public String getProductId() { return productId; }
-    public void setProductId(String productId) { this.productId = productId; }
-
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
-
-    public int getRating() { return rating; }
-    public void setRating(int rating) { this.rating = rating; }
-
-    public String getComment() { return comment; }
-    public void setComment(String comment) { this.comment = comment; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

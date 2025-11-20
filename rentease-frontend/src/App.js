@@ -14,7 +14,6 @@ import OAuthCallback from './pages/OAuthCallback';
 import Profile from './pages/Profile';
 import AadhaarVerification from './pages/AadhaarVerification';
 import Payment from './pages/Payment';
-import Chatbot from './components/Chatbot';
 import { ToastContainer, Toast } from 'react-bootstrap';
 import * as sessionUtils from './utils/session';
 
@@ -25,45 +24,27 @@ function ActivityTracker() {
   useEffect(() => {
     if (!isAuthenticated) return;
 
-    // Activity events to track
     const activityEvents = ['mousemove', 'keydown', 'click', 'touchstart', 'scroll'];
-    
-    const handleActivity = () => {
-      updateActivity();
-    };
+    const handleActivity = () => updateActivity();
 
-    // Add event listeners
     activityEvents.forEach(event => {
       window.addEventListener(event, handleActivity, { passive: true });
     });
 
-    // Check session validity on mount and periodically
     const checkSession = () => {
       if (!sessionUtils.isSessionValid()) {
         logout('You were logged out due to 2 days of inactivity. Please sign in.');
       }
     };
 
-    // Check immediately
     checkSession();
-
-    // Check every 5 minutes
     const interval = setInterval(checkSession, 5 * 60 * 1000);
-
-    // Handle online/offline events
-    const handleOnline = () => {
-      updateActivity();
-    };
-
-    window.addEventListener('online', handleOnline);
+    window.addEventListener('online', handleActivity);
 
     return () => {
-      // Cleanup
-      activityEvents.forEach(event => {
-        window.removeEventListener(event, handleActivity);
-      });
+      activityEvents.forEach(event => window.removeEventListener(event, handleActivity));
       clearInterval(interval);
-      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('online', handleActivity);
     };
   }, [isAuthenticated, updateActivity, logout]);
 
@@ -81,8 +62,6 @@ function LogoutToast() {
       setMessage(logoutMessage);
       setShow(true);
       sessionStorage.removeItem('logoutMessage');
-      
-      // Auto-hide after 5 seconds
       setTimeout(() => setShow(false), 5000);
     }
   }, []);
@@ -105,12 +84,7 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh' 
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <div>Loading...</div>
       </div>
     );
@@ -127,65 +101,66 @@ function AppRoutes() {
         <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} />
         <Route path="/verify-otp" element={<OtpVerification />} />
         <Route path="/oauth2/callback" element={<OAuthCallback />} />
-        
+
         {/* Protected routes */}
-        <Route 
-          path="/profile" 
+        <Route
+          path="/profile"
           element={
             <ProtectedRoute>
               <Profile />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/verify-aadhaar" 
+        <Route
+          path="/verify-aadhaar"
           element={
             <ProtectedRoute>
               <AadhaarVerification />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/payment" 
+        <Route
+          path="/payment"
           element={
             <ProtectedRoute>
               <Payment />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/chatbot" 
-          element={
-            <ProtectedRoute>
-              <Chatbot />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <ProtectedRoute>
               <ProductList />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/product/:id" 
+        <Route
+          path="/product/:id"
           element={
             <ProtectedRoute>
               <ProductDetails />
             </ProtectedRoute>
-          } 
+          }
         />
-        <Route 
-          path="/add-product" 
+        <Route
+          path="/add-product"
           element={
             <ProtectedRoute>
               <AddProduct />
             </ProtectedRoute>
-          } 
+          }
         />
-        
+        <Route
+          path="/add-product/:id"
+          element={
+            <ProtectedRoute>
+              <AddProduct />
+            </ProtectedRoute>
+          }
+        />
+
+
         {/* Catch all - redirect to home if authenticated, else to login */}
         <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />} />
       </Routes>
@@ -204,4 +179,5 @@ function App() {
     </ErrorBoundary>
   );
 }
+
 export default App;

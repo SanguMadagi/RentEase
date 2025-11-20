@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +21,9 @@ import static io.jsonwebtoken.Jwts.*;
 @Component
 public class JwtUtil {
 
-    private String SECRET_KEY = "TaK+HaV^uvCHEFsEVfypW#7g9^k*Z8$V";
-    
+    @Value("${app.secret-key}")
+    private String SECRET_KEY;
+
     // Token expiry: 48 hours (2 days) in milliseconds
     private static final long TOKEN_EXPIRATION_TIME = 1000L * 60 * 60 * 48; // 48 hours
 
@@ -37,11 +39,6 @@ public class JwtUtil {
         return extractAllClaims(token).getExpiration();
     }
 
-//    @SuppressWarnings("unchecked")
-//    public Set<String> extractRoles(String token) {
-//        Claims claims = extractAllClaims(token);
-//        return (Set<String>) claims.get("roles");
-//    }
     @SuppressWarnings("unchecked")
     public Set<String> extractRoles(String token) {
         Claims claims = extractAllClaims(token);
@@ -69,13 +66,6 @@ public class JwtUtil {
         }
     }
 
-//    private Claims extractAllClaims(String token) {
-//        return Jwts.parser()
-//                .verifyWith(getSigningKey())
-//                .build()
-//                .parseSignedClaims(token)
-//                .getPayload(); }
-
 
     private Claims extractAllClaims(String token) {
         return Jwts.parserBuilder()
@@ -84,8 +74,6 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
     }
-
-
 
 
     private Boolean isTokenExpired(String token) {

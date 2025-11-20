@@ -146,6 +146,25 @@ public class ProductController {
             return ResponseEntity.status(500).body(error);
         }
     }
+    @GetMapping("/my-products")
+    public ResponseEntity<?> getMyProducts() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+
+            Optional<User> userOpt = userService.getUserByEmail(email);
+            if (userOpt.isEmpty()) {
+                return ResponseEntity.status(404).body("User not found");
+            }
+
+            List<Product> products = productService.getProductsByLenderId(userOpt.get().getId());
+            return ResponseEntity.ok(products);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Error fetching products: " + e.getMessage());
+            return ResponseEntity.status(500).body(error);
+        }
+    }
 
     @GetMapping("/search")
     public ResponseEntity<?> searchProducts(
