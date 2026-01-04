@@ -146,4 +146,40 @@ public class    UserService {
             return true;
         }).orElse(false);
     }
+    /**
+     * Update password for an existing user (used by forgot-password flow).
+     * This method hashes the password and updates the user record.
+     */
+    public void updatePassword(String email, String newPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            throw new RuntimeException("Password cannot be empty");
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
+    public String registerWithPassword(String email, String name, String password) {
+        if (userRepository.existsByEmail(email)) {
+            throw new RuntimeException("Email already registered");
+        }
+
+        User user = new User();
+        user.setUsername(name);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+
+        Set<String> roles = new HashSet<>();
+        roles.add("USER");
+        user.setRoles(roles);
+        user.setVerified(true);
+
+        userRepository.save(user);
+
+        return jwtUtil.generateToken(user.getEmail(), user.getRoles());
+    }
+
+
 }

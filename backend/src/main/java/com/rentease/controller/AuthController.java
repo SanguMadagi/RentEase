@@ -37,11 +37,9 @@ public class AuthController {
     public ResponseEntity<?> sendOtp(@RequestBody OtpRequest request) {
         try {
             String purpose = request.getPurpose() != null ? request.getPurpose().toUpperCase() : "LOGIN";
-            
-            if (!purpose.equals("LOGIN") && !purpose.equals("REGISTER")) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Purpose must be LOGIN or REGISTER");
-                return ResponseEntity.badRequest().body(errorResponse);
+
+            if (purpose.equals("REGISTER") && userService.getUserByEmail(request.getEmail()).isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Email already registered. Please login instead."));
             }
 
             // For REGISTER, check if email already exists
@@ -76,47 +74,113 @@ public class AuthController {
     }
 
     // Verify OTP and login/register
+//    @PostMapping("/verify-otp")
+//    public ResponseEntity<?> verifyOtp(@RequestBody OtpRequest request) {
+//        try {
+//            String purpose = request.getPurpose() != null ? request.getPurpose().toUpperCase() : "LOGIN";
+//
+//            if (request.getOtp() == null || request.getOtp().isEmpty()) {
+//                Map<String, String> errorResponse = new HashMap<>();
+//                errorResponse.put("message", "OTP is required");
+//                return ResponseEntity.badRequest().body(errorResponse);
+//            }
+//
+//            // Verify OTP
+//            boolean isValid = otpService.verifyOtp(request.getEmail(), request.getOtp(), purpose);
+//
+//            if (!isValid) {
+//                Map<String, String> errorResponse = new HashMap<>();
+//                errorResponse.put("message", "Invalid or expired OTP");
+//                return ResponseEntity.status(401).body(errorResponse);
+//            }
+//
+//            String token;
+//            if (purpose.equals("REGISTER")) {
+//                // Register new user
+//                if (request.getName() == null || request.getName().isEmpty()) {
+//                    Map<String, String> errorResponse = new HashMap<>();
+//                    errorResponse.put("message", "Name is required for registration");
+//                    return ResponseEntity.badRequest().body(errorResponse);
+//                }
+//                token = userService.register(request.getEmail(), request.getName());
+//            } else {
+//                // Login existing user
+//                token = userService.login(request.getEmail());
+//            }
+//
+//            return ResponseEntity.ok(new JwtResponse(token));
+//        } catch (Exception e) {
+//            Map<String, String> errorResponse = new HashMap<>();
+//            errorResponse.put("message", "Error: " + e.getMessage());
+//            return ResponseEntity.status(500).body(errorResponse);
+//        }
+//    }
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestBody OtpRequest request) {
         try {
             String purpose = request.getPurpose() != null ? request.getPurpose().toUpperCase() : "LOGIN";
-            
+
             if (request.getOtp() == null || request.getOtp().isEmpty()) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "OTP is required");
-                return ResponseEntity.badRequest().body(errorResponse);
+                return ResponseEntity.badRequest().body(Map.of("message", "OTP is required"));
             }
 
             // Verify OTP
             boolean isValid = otpService.verifyOtp(request.getEmail(), request.getOtp(), purpose);
-            
             if (!isValid) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Invalid or expired OTP");
-                return ResponseEntity.status(401).body(errorResponse);
+                return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired OTP"));
             }
 
-            String token;
+            // REGISTER: only verify OTP, no user creation
             if (purpose.equals("REGISTER")) {
-                // Register new user
-                if (request.getName() == null || request.getName().isEmpty()) {
-                    Map<String, String> errorResponse = new HashMap<>();
-                    errorResponse.put("message", "Name is required for registration");
-                    return ResponseEntity.badRequest().body(errorResponse);
-                }
-                token = userService.register(request.getEmail(), request.getName());
-            } else {
-                // Login existing user
-                token = userService.login(request.getEmail());
+                return ResponseEntity.ok(Map.of(
+                        "message", "OTP verified successfully",
+                        "verified", true
+                ));
             }
 
-            return ResponseEntity.ok(new JwtResponse(token));
+            // LOGIN: generate token immediately
+            String token = userService.login(request.getEmail());
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "OTP verified successfully",
+                    "verified", true,
+                    "token", token
+            ));
+
         } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Error: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
+            return ResponseEntity.status(500).body(Map.of("message", "Error: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/set-password")
+    public ResponseEntity<?> setPassword(@RequestBody Map<String, String> payload) {
+        try {
+            String email = payload.get("email");
+            String name = payload.get("name");
+            String password = payload.get("password");
+
+            if (email == null || name == null || password == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "email, name and password are required"));
+            }
+
+            // Check if user already exists — block duplicate
+            if (userService.getUserByEmail(email).isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "User already exists"));
+            }
+
+            // Create user with password
+            String token = userService.registerWithPassword(email, name, password);
+
+            return ResponseEntity.ok(Map.of(
+                    "message", "Registration successful",
+                    "token", token
+            ));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(Map.of("message", "Error: " + e.getMessage()));
+        }
+    }
+
 
     // Legacy password-based register (kept for backward compatibility)
     @PostMapping("/register")
@@ -148,8 +212,11 @@ public class AuthController {
             String jwt = jwtUtils.generateToken(userDetails.getUsername(), roles);
             return ResponseEntity.ok(new JwtResponse(jwt));
         } catch (Exception e) {
-            return ResponseEntity.status(401).body("Error: Invalid email or password");
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse); // always JSON
         }
+
     }
 
     /**
@@ -205,6 +272,67 @@ public class AuthController {
             errorResponse.put("debugId", UUID.randomUUID().toString());
             System.err.println("Update activity error: " + e.getMessage() + " [debugId: " + errorResponse.get("debugId") + "]");
             return ResponseEntity.status(500).body(errorResponse);
+        }
+
+
+
+
+    }
+    // Allow FORGOT as a purpose in sendOtp (if you prefer to keep validation centralized,
+// add FORGOT to the earlier allowed list — shown here as a helper endpoint)
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody OtpRequest request) {
+        try {
+            String email = request.getEmail();
+            if (email == null || email.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Email is required"));
+            }
+            // ensure user exists
+            if (userService.getUserByEmail(email).isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Email not registered."));
+            }
+            boolean sent = otpService.sendOtp(email, "FORGOT");
+            if (sent) return ResponseEntity.ok(Map.of("message", "OTP sent to your email for password reset"));
+            else return ResponseEntity.status(500).body(Map.of("message", "Failed to send OTP. Try again later"));
+        }catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse); // always JSON
+        }
+
+    }
+    /**
+     * Reset password with email + otp + newPassword.
+     * Body: { "email": "...", "otp": "...", "newPassword": "..." }
+     */
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@RequestBody Map<String, String> payload) {
+        try {
+            String email = payload.get("email");
+            String otp = payload.get("otp");
+            String newPassword = payload.get("newPassword");
+            String confirmPassword = payload.get("confirmPassword"); // optional check
+
+            if (email == null || otp == null || newPassword == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "email, otp and newPassword are required"));
+            }
+            if (confirmPassword != null && !newPassword.equals(confirmPassword)) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Passwords do not match"));
+            }
+
+            boolean verified = otpService.verifyOtp(email, otp, "FORGOT");
+            if (!verified) {
+                return ResponseEntity.status(401).body(Map.of("message", "Invalid or expired OTP"));
+            }
+
+            // Delegate password update to userService (implement/update this method)
+            userService.updatePassword(email, newPassword);
+
+            return ResponseEntity.ok(Map.of("message", "Password updated successfully"));
+        }catch (Exception e) {
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Error: " + e.getMessage());
+            return ResponseEntity.status(400).body(errorResponse); // always JSON
         }
     }
 }

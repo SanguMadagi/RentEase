@@ -8,31 +8,57 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [userLocation, setUserLocation] = useState({ lat: null, lon: null });
+const [userLocation, setUserLocation] = useState({ lat: null, lon: null });
+const [locationReady, setLocationReady] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === "/profile";
 
-  // Get user's location
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
-          });
-        },
-        () => console.log("Location access denied or unavailable")
-      );
-    }
-  }, []);
+// Get user's location
+//  useEffect(() => {
+//    if (navigator.geolocation) {
+//      navigator.geolocation.getCurrentPosition(
+//        (position) => {
+//          setUserLocation({
+//            lat: position.coords.latitude,
+//            lon: position.coords.longitude
+//          });
+//        },
+//        () => console.log("Location access denied or unavailable")
+//      );
+//    }
+//  }, []);
+useEffect(() => {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude
+        });
+        setLocationReady(true);
+      },
+      () => {
+        // Even if denied, mark as ready to load products
+        setLocationReady(true);
+      }
+    );
+  } else {
+    setLocationReady(true);
+  }
+}, []);
+
 
   // Load products
-  useEffect(() => {
+//  useEffect(() => {
+//    loadProducts();
+//  }, [userLocation.lat, userLocation.lon]);
+useEffect(() => {
+  if (locationReady) {
     loadProducts();
-  }, [userLocation.lat, userLocation.lon]);
+  }
+}, [locationReady]);
 
   const loadProducts = async () => {
     setLoading(true);

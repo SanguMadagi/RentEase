@@ -43,9 +43,9 @@ public class ProductService {
     // Get all products sorted by distance from user location
     public List<Product> getAllProductsSortedByDistance(Double userLat, Double userLon) {
         try {
-            System.out.println("ProductService.getAllProductsSortedByDistance() called with userLat=" + userLat + ", userLon=" + userLon);
+//            System.out.println("ProductService.getAllProductsSortedByDistance() called with userLat=" + userLat + ", userLon=" + userLon);
             List<Product> products = productRepository.findAll();
-            System.out.println("Repository returned " + products.size() + " products");
+//            System.out.println("Repository returned " + products.size() + " products");
             
             if (userLat != null && userLon != null) {
                 // Separate products with and without coordinates

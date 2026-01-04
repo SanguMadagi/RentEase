@@ -18,29 +18,27 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Check authentication status
-  const checkAuth = () => {
-    try {
-      const token = sessionUtils.getToken();
-      if (!token) {
-        setIsAuthenticated(false);
-        return false;
-      }
-
-      // Check if session is valid
-      if (sessionUtils.isSessionValid()) {
-        setIsAuthenticated(true);
-        return true;
-      } else {
-        // Session invalid - logout
-        logout('Session expired. Please sign in again.');
-        return false;
-      }
-    } catch (error) {
-      console.error('Error checking auth:', error);
+const checkAuth = async () => {
+  try {
+    const token = sessionUtils.getToken();
+    if (!token) {
       setIsAuthenticated(false);
       return false;
     }
-  };
+
+    if (sessionUtils.isSessionValid()) {
+      setIsAuthenticated(true);
+      return true;
+    } else {
+      logout("Session expired.");
+      return false;
+    }
+  } catch {
+    setIsAuthenticated(false);
+    return false;
+  }
+};
+
 
   // Login function
   const login = (token) => {
@@ -136,10 +134,14 @@ export const AuthProvider = ({ children }) => {
   };
 
   // Initialize auth state on mount
-  useEffect(() => {
-    checkAuth();
+useEffect(() => {
+  const init = async () => {
+    await checkAuth();   // wait for token check
     setLoading(false);
-  }, []);
+  };
+  init();
+}, []);
+
 
   // Check session validity periodically (every 5 minutes)
   useEffect(() => {

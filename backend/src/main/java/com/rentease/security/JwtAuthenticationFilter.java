@@ -124,10 +124,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        System.out.println("Incoming JWT: " + jwt);
+//        System.out.println("Incoming JWT: " + jwt);
         try {
             userEmail = jwtUtil.extractUsername(jwt);
-            System.out.println("user email " + userEmail);
+//            System.out.println("user email " + userEmail);
             if (userEmail == null) {
                 sendUnauthorized(response, "Invalid JWT token: missing username");
                 return;
@@ -136,7 +136,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // Only authenticate if not already set
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
-                System.out.println("User details: " + userDetails);
+//                System.out.println("User details: " + userDetails);
                 if (!jwtUtil.isTokenValid(jwt, userDetails)) {
                     sendUnauthorized(response, "JWT token is expired or invalid");
                     return;
