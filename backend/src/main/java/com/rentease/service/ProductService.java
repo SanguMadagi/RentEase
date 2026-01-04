@@ -5,6 +5,7 @@ import com.rentease.model.ProductSearchQuery;
 import com.rentease.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -25,6 +26,7 @@ public class ProductService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
+
     public List<Product> getProductsByLenderId(String lenderId) {
         return productRepository.findByLenderId(lenderId);
     }
@@ -46,12 +48,12 @@ public class ProductService {
 //            System.out.println("ProductService.getAllProductsSortedByDistance() called with userLat=" + userLat + ", userLon=" + userLon);
             List<Product> products = productRepository.findAll();
 //            System.out.println("Repository returned " + products.size() + " products");
-            
+
             if (userLat != null && userLon != null) {
                 // Separate products with and without coordinates
                 List<ProductWithDistance> withCoords = new ArrayList<>();
                 List<Product> withoutCoords = new ArrayList<>();
-                
+
                 for (Product product : products) {
                     try {
                         // Check if product has valid coordinates (not 0,0 which is in the ocean)
@@ -75,19 +77,19 @@ public class ProductService {
                         withoutCoords.add(product);
                     }
                 }
-                
+
                 // Sort products with coordinates by distance
                 withCoords.sort(Comparator.comparingDouble(ProductWithDistance::getDistance));
-                
+
                 // Combine: products with coordinates (sorted) + products without coordinates
                 List<Product> result = new ArrayList<>();
                 result.addAll(withCoords.stream().map(ProductWithDistance::getProduct).collect(Collectors.toList()));
                 result.addAll(withoutCoords);
-                
+
                 System.out.println("Returning " + result.size() + " products (withCoords: " + withCoords.size() + ", withoutCoords: " + withoutCoords.size() + ")");
                 return result;
             }
-            
+
             System.out.println("Returning " + products.size() + " products (no sorting)");
             return products;
         } catch (Exception e) {
@@ -110,11 +112,11 @@ public class ProductService {
             System.out.println("ProductService.searchProductsByName() called with name=" + name + ", userLat=" + userLat + ", userLon=" + userLon);
             List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
             System.out.println("Repository returned " + products.size() + " products for search: " + name);
-            
+
             if (userLat != null && userLon != null) {
                 List<ProductWithDistance> withCoords = new ArrayList<>();
                 List<Product> withoutCoords = new ArrayList<>();
-                
+
                 for (Product product : products) {
                     try {
                         double lat = product.getLatitude();
@@ -135,17 +137,17 @@ public class ProductService {
                         withoutCoords.add(product);
                     }
                 }
-                
+
                 withCoords.sort(Comparator.comparingDouble(ProductWithDistance::getDistance));
-                
+
                 List<Product> result = new ArrayList<>();
                 result.addAll(withCoords.stream().map(ProductWithDistance::getProduct).collect(Collectors.toList()));
                 result.addAll(withoutCoords);
-                
+
                 System.out.println("Returning " + result.size() + " products from search (withCoords: " + withCoords.size() + ", withoutCoords: " + withoutCoords.size() + ")");
                 return result;
             }
-            
+
             System.out.println("Returning " + products.size() + " products from search (no sorting)");
             return products;
         } catch (Exception e) {
@@ -183,7 +185,7 @@ public class ProductService {
     // Update existing product
     public Product updateProduct(String id, Product updatedProduct) {
         Optional<Product> existing = productRepository.findById(id);
-        if(existing.isPresent()) {
+        if (existing.isPresent()) {
             Product prod = existing.get();
             prod.setName(updatedProduct.getName());
             prod.setDescription(updatedProduct.getDescription());
@@ -200,7 +202,7 @@ public class ProductService {
 
     // Delete product
     public boolean deleteProduct(String id) {
-        if(productRepository.existsById(id)) {
+        if (productRepository.existsById(id)) {
             productRepository.deleteById(id);
             return true;
         }
@@ -221,6 +223,7 @@ public class ProductService {
             return new ArrayList<>();
         }
     }
+
     public List<Product> searchProducts(ProductSearchQuery query, Double userLat, Double userLon, Double maxDistanceKm) {
         return productRepository.findAll().stream()
                 .filter(Product::isAvailable)
@@ -235,16 +238,18 @@ public class ProductService {
                         || distanceInKm(userLat, userLon, p.getLatitude(), p.getLongitude()) <= maxDistanceKm)
                 .collect(Collectors.toList());
     }
+
     private double distanceInKm(double lat1, double lon1, double lat2, double lon2) {
         final int R = 6371;
         double latDistance = Math.toRadians(lat2 - lat1);
         double lonDistance = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(latDistance/2) * Math.sin(latDistance/2)
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
                 + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-                * Math.sin(lonDistance/2) * Math.sin(lonDistance/2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
+
     // Get product by ID
     public Optional<Product> getProductById(String id) {
         return productRepository.findById(id);

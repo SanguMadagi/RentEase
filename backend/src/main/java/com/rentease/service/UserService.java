@@ -13,7 +13,7 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class    UserService {
+public class UserService {
 
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -135,7 +135,7 @@ public class    UserService {
         // For demo, we'll store it as-is (NOT recommended for production!)
         user.setAadhaarNumber(aadhaarNumber);
         user.setAadhaarVerified(true);
-        
+
         return userRepository.save(user);
     }
 
@@ -146,6 +146,7 @@ public class    UserService {
             return true;
         }).orElse(false);
     }
+
     /**
      * Update password for an existing user (used by forgot-password flow).
      * This method hashes the password and updates the user record.
@@ -161,6 +162,7 @@ public class    UserService {
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
     }
+
     public String registerWithPassword(String email, String name, String password) {
         if (userRepository.existsByEmail(email)) {
             throw new RuntimeException("Email already registered");

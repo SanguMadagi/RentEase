@@ -49,6 +49,3 @@ const OAuthCallback = () => {
 };
 
 export default OAuthCallback;
-
-
-

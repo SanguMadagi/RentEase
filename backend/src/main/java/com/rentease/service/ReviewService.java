@@ -23,6 +23,7 @@ public class ReviewService {
 
         return reviewRepository.findByProductId(productId);
     }
+
     public List<Review> getReviewsForProduct(String productId) {
         return reviewRepository.findByProductId(productId);
     }

@@ -1,8 +1,8 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Navbar as BootstrapNavbar, Nav, Container } from 'react-bootstrap';
-import { useAuth } from '../context/AuthContext';
-import LogoutButton from './Auth/LogoutButton';
+import React from "react";
+import { Link } from "react-router-dom";
+import { Navbar as BootstrapNavbar, Nav, Container } from "react-bootstrap";
+import { useAuth } from "../context/AuthContext";
+import LogoutButton from "./Auth/LogoutButton";
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth();

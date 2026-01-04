@@ -1,13 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import * as sessionUtils from '../utils/session';
+import React, { createContext, useContext, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import * as sessionUtils from "../utils/session";
 
 const AuthContext = createContext(null);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };
@@ -18,27 +18,26 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Check authentication status
-const checkAuth = async () => {
-  try {
-    const token = sessionUtils.getToken();
-    if (!token) {
+  const checkAuth = async () => {
+    try {
+      const token = sessionUtils.getToken();
+      if (!token) {
+        setIsAuthenticated(false);
+        return false;
+      }
+
+      if (sessionUtils.isSessionValid()) {
+        setIsAuthenticated(true);
+        return true;
+      } else {
+        logout("Session expired.");
+        return false;
+      }
+    } catch {
       setIsAuthenticated(false);
       return false;
     }
-
-    if (sessionUtils.isSessionValid()) {
-      setIsAuthenticated(true);
-      return true;
-    } else {
-      logout("Session expired.");
-      return false;
-    }
-  } catch {
-    setIsAuthenticated(false);
-    return false;
-  }
-};
-
+  };
 
   // Login function
   const login = (token) => {
@@ -46,7 +45,7 @@ const checkAuth = async () => {
       sessionUtils.setToken(token);
       setIsAuthenticated(true);
     } catch (error) {
-      console.error('Error during login:', error);
+      console.error("Error during login:", error);
       throw error;
     }
   };
@@ -59,17 +58,18 @@ const checkAuth = async () => {
       // Call backend logout endpoint if token exists
       if (token) {
         try {
-          const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+          const API_BASE_URL =
+            process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
           await fetch(`${API_BASE_URL}/api/auth/logout`, {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           });
         } catch (error) {
           // Log but don't block logout
-          console.error('Error calling logout endpoint:', error);
+          console.error("Error calling logout endpoint:", error);
         }
       }
 
@@ -80,17 +80,17 @@ const checkAuth = async () => {
       // Show logout message if provided
       if (message) {
         // Store message to show in toast/alert
-        sessionStorage.setItem('logoutMessage', message);
+        sessionStorage.setItem("logoutMessage", message);
       }
 
       // Navigate to login
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     } catch (error) {
-      console.error('Error during logout:', error);
+      console.error("Error during logout:", error);
       // Still clear local storage and navigate
       sessionUtils.clearToken();
       setIsAuthenticated(false);
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     }
   };
 
@@ -109,14 +109,18 @@ const checkAuth = async () => {
       const token = sessionUtils.getToken();
       if (token && isAuthenticated) {
         try {
-          const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
-          const response = await fetch(`${API_BASE_URL}/api/auth/update-activity`, {
-            method: 'POST',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
+          const API_BASE_URL =
+            process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+          const response = await fetch(
+            `${API_BASE_URL}/api/auth/update-activity`,
+            {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
             },
-          });
+          );
 
           if (response.ok) {
             const data = await response.json();
@@ -127,29 +131,33 @@ const checkAuth = async () => {
           }
         } catch (error) {
           // Log but don't block - local activity is already updated
-          console.error('Error updating activity on server:', error);
+          console.error("Error updating activity on server:", error);
         }
       }
     }, 60000); // 1 minute
   };
 
   // Initialize auth state on mount
-useEffect(() => {
-  const init = async () => {
-    await checkAuth();   // wait for token check
-    setLoading(false);
-  };
-  init();
-}, []);
-
+  useEffect(() => {
+    const init = async () => {
+      await checkAuth(); // wait for token check
+      setLoading(false);
+    };
+    init();
+  }, []);
 
   // Check session validity periodically (every 5 minutes)
   useEffect(() => {
-    const interval = setInterval(() => {
-      if (isAuthenticated && !sessionUtils.isSessionValid()) {
-        logout('You were logged out due to 2 days of inactivity. Please sign in.');
-      }
-    }, 5 * 60 * 1000); // 5 minutes
+    const interval = setInterval(
+      () => {
+        if (isAuthenticated && !sessionUtils.isSessionValid()) {
+          logout(
+            "You were logged out due to 2 days of inactivity. Please sign in.",
+          );
+        }
+      },
+      5 * 60 * 1000,
+    ); // 5 minutes
 
     return () => clearInterval(interval);
   }, [isAuthenticated]);
@@ -165,4 +173,3 @@ useEffect(() => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-

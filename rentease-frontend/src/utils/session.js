@@ -3,9 +3,9 @@
  * Handles JWT token expiry (48 hours) and inactivity tracking
  */
 
-const TOKEN_KEY = 'token';
-const TOKEN_ISSUED_AT_KEY = 'tokenIssuedAt';
-const LAST_ACTIVITY_KEY = 'lastActivity';
+const TOKEN_KEY = "token";
+const TOKEN_ISSUED_AT_KEY = "tokenIssuedAt";
+const LAST_ACTIVITY_KEY = "lastActivity";
 const INACTIVITY_TIMEOUT = 1000 * 60 * 60 * 48; // 48 hours in milliseconds
 
 /**
@@ -15,7 +15,7 @@ export const getToken = () => {
   try {
     return localStorage.getItem(TOKEN_KEY);
   } catch (error) {
-    console.error('Error getting token:', error);
+    console.error("Error getting token:", error);
     return null;
   }
 };
@@ -29,7 +29,7 @@ export const setToken = (token) => {
     localStorage.setItem(TOKEN_ISSUED_AT_KEY, Date.now().toString());
     updateLastActivity();
   } catch (error) {
-    console.error('Error setting token:', error);
+    console.error("Error setting token:", error);
   }
 };
 
@@ -41,9 +41,9 @@ export const clearToken = () => {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(TOKEN_ISSUED_AT_KEY);
     localStorage.removeItem(LAST_ACTIVITY_KEY);
-    localStorage.removeItem('userName');
+    localStorage.removeItem("userName");
   } catch (error) {
-    console.error('Error clearing token:', error);
+    console.error("Error clearing token:", error);
   }
 };
 
@@ -54,11 +54,11 @@ export const isTokenExpired = (token) => {
   if (!token) return true;
 
   try {
-    const payload = JSON.parse(atob(token.split('.')[1]));
+    const payload = JSON.parse(atob(token.split(".")[1]));
     const expiry = payload.exp * 1000; // Convert to milliseconds
     return Date.now() >= expiry;
   } catch (error) {
-    console.error('Error checking token expiry:', error);
+    console.error("Error checking token expiry:", error);
     return true; // If we can't parse, consider it expired
   }
 };
@@ -71,7 +71,7 @@ export const getLastActivity = () => {
     const lastActivity = localStorage.getItem(LAST_ACTIVITY_KEY);
     return lastActivity ? parseInt(lastActivity, 10) : null;
   } catch (error) {
-    console.error('Error getting last activity:', error);
+    console.error("Error getting last activity:", error);
     return null;
   }
 };
@@ -83,7 +83,7 @@ export const updateLastActivity = () => {
   try {
     localStorage.setItem(LAST_ACTIVITY_KEY, Date.now().toString());
   } catch (error) {
-    console.error('Error updating last activity:', error);
+    console.error("Error updating last activity:", error);
   }
 };
 
@@ -141,4 +141,3 @@ export const getInactivityHours = () => {
  * Session utility for token and activity management
  * Handles JWT expiry and inactivity (48h)
  */
-

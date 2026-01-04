@@ -1,5 +1,5 @@
-import React from 'react';
-import { Container, Alert, Button } from 'react-bootstrap';
+import React from "react";
+import { Container, Alert, Button } from "react-bootstrap";
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -12,7 +12,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
   }
 
   render() {
@@ -21,12 +21,12 @@ class ErrorBoundary extends React.Component {
         <Container className="mt-5">
           <Alert variant="danger">
             <Alert.Heading>Something went wrong</Alert.Heading>
-            <p>{this.state.error?.message || 'An unexpected error occurred'}</p>
-            <Button 
-              variant="primary" 
+            <p>{this.state.error?.message || "An unexpected error occurred"}</p>
+            <Button
+              variant="primary"
               onClick={() => {
                 this.setState({ hasError: false, error: null });
-                window.location.href = '/';
+                window.location.href = "/";
               }}
             >
               Go to Home
@@ -41,4 +41,3 @@ class ErrorBoundary extends React.Component {
 }
 
 export default ErrorBoundary;
-

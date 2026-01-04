@@ -1,4 +1,3 @@
-// src/pages/SetPassword.jsx
 import React, { useState, useEffect } from "react";
 import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -61,7 +60,6 @@ const SetPassword = () => {
         <div className="col-md-6 col-lg-5">
           <Card className="shadow-lg border-0">
             <Card.Body className="p-5">
-
               <div className="text-center mb-4">
                 <h2 className="fw-bold text-primary">Set Your Password</h2>
                 <p className="text-muted mb-1">Creating account for</p>
@@ -69,13 +67,16 @@ const SetPassword = () => {
               </div>
 
               {error && (
-                <Alert variant="danger" dismissible onClose={() => setError("")}>
+                <Alert
+                  variant="danger"
+                  dismissible
+                  onClose={() => setError("")}
+                >
                   {error}
                 </Alert>
               )}
 
               <Form onSubmit={handleSetPassword}>
-
                 <Form.Group className="mb-3">
                   <Form.Label className="fw-semibold">Password</Form.Label>
                   <Form.Control
@@ -88,7 +89,9 @@ const SetPassword = () => {
                 </Form.Group>
 
                 <Form.Group className="mb-4">
-                  <Form.Label className="fw-semibold">Confirm Password</Form.Label>
+                  <Form.Label className="fw-semibold">
+                    Confirm Password
+                  </Form.Label>
                   <Form.Control
                     type="password"
                     placeholder="Re-enter password"
@@ -107,7 +110,6 @@ const SetPassword = () => {
                 >
                   {loading ? "Creating Account..." : "Create Account"}
                 </Button>
-
               </Form>
 
               <div className="text-center mt-4">
@@ -119,7 +121,6 @@ const SetPassword = () => {
                   ← Back to Register
                 </Button>
               </div>
-
             </Card.Body>
           </Card>
         </div>

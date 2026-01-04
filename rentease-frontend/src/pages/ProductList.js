@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { Container, Row, Col, Card, Form, Button, InputGroup, Alert, Spinner, Badge } from "react-bootstrap";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Form,
+  Button,
+  InputGroup,
+  Alert,
+  Spinner,
+  Badge,
+} from "react-bootstrap";
 import { useNavigate, useLocation } from "react-router-dom";
 import { searchProducts, getAllProducts, calculateDistance } from "../api";
 
@@ -8,57 +19,38 @@ const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-const [userLocation, setUserLocation] = useState({ lat: null, lon: null });
-const [locationReady, setLocationReady] = useState(false);
+  const [userLocation, setUserLocation] = useState({ lat: null, lon: null });
+  const [locationReady, setLocationReady] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === "/profile";
 
-// Get user's location
-//  useEffect(() => {
-//    if (navigator.geolocation) {
-//      navigator.geolocation.getCurrentPosition(
-//        (position) => {
-//          setUserLocation({
-//            lat: position.coords.latitude,
-//            lon: position.coords.longitude
-//          });
-//        },
-//        () => console.log("Location access denied or unavailable")
-//      );
-//    }
-//  }, []);
-useEffect(() => {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude
-        });
-        setLocationReady(true);
-      },
-      () => {
-        // Even if denied, mark as ready to load products
-        setLocationReady(true);
-      }
-    );
-  } else {
-    setLocationReady(true);
-  }
-}, []);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lon: position.coords.longitude,
+          });
+          setLocationReady(true);
+        },
+        () => {
+          // Even if denied, mark as ready to load products
+          setLocationReady(true);
+        },
+      );
+    } else {
+      setLocationReady(true);
+    }
+  }, []);
 
-
-  // Load products
-//  useEffect(() => {
-//    loadProducts();
-//  }, [userLocation.lat, userLocation.lon]);
-useEffect(() => {
-  if (locationReady) {
-    loadProducts();
-  }
-}, [locationReady]);
+  useEffect(() => {
+    if (locationReady) {
+      loadProducts();
+    }
+  }, [locationReady]);
 
   const loadProducts = async () => {
     setLoading(true);
@@ -68,7 +60,7 @@ useEffect(() => {
       let filtered = Array.isArray(data) ? data : [];
       if (isProfilePage) {
         const currentUserId = localStorage.getItem("userId");
-        filtered = filtered.filter(p => p.lenderId === currentUserId);
+        filtered = filtered.filter((p) => p.lenderId === currentUserId);
       }
       setProducts(filtered);
     } catch (err) {
@@ -88,11 +80,15 @@ useEffect(() => {
     setLoading(true);
     setError(null);
     try {
-      const data = await searchProducts(query, userLocation.lat, userLocation.lon);
+      const data = await searchProducts(
+        query,
+        userLocation.lat,
+        userLocation.lon,
+      );
       let filtered = data || [];
       if (isProfilePage) {
         const currentUserId = localStorage.getItem("userId");
-        filtered = filtered.filter(p => p.lenderId === currentUserId);
+        filtered = filtered.filter((p) => p.lenderId === currentUserId);
       }
       setProducts(filtered);
     } catch (err) {
@@ -105,12 +101,17 @@ useEffect(() => {
   };
 
   const getDistance = (product) => {
-    if (userLocation.lat && userLocation.lon && product.latitude && product.longitude) {
+    if (
+      userLocation.lat &&
+      userLocation.lon &&
+      product.latitude &&
+      product.longitude
+    ) {
       const distance = calculateDistance(
         userLocation.lat,
         userLocation.lon,
         product.latitude,
-        product.longitude
+        product.longitude,
       );
       return distance < 1
         ? `${Math.round(distance * 1000)}m away`
@@ -137,7 +138,7 @@ useEffect(() => {
             </h2>
             <Button
               variant="success"
-              onClick={() => navigate('/add-product')}
+              onClick={() => navigate("/add-product")}
               className="fw-semibold"
             >
               + Add Product
@@ -207,26 +208,53 @@ useEffect(() => {
                 <Col key={p.id || p._id} md={6} lg={4} className="mb-4">
                   <Card
                     className="h-100 shadow-lg border-0"
-                    style={{ cursor: 'pointer', transition: 'transform 0.2s' }}
-                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
-                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                    style={{ cursor: "pointer", transition: "transform 0.2s" }}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.transform = "translateY(-5px)")
+                    }
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.transform = "translateY(0)")
+                    }
                   >
                     {p.images && p.images.length > 0 && (
-                      <div style={{ height: '220px', overflow: 'hidden', backgroundColor: '#f8f9fa' }}>
+                      <div
+                        style={{
+                          height: "220px",
+                          overflow: "hidden",
+                          backgroundColor: "#f8f9fa",
+                        }}
+                      >
                         <img
                           src={p.images[0]}
-                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                          }}
                           alt={p.name}
-                          onClick={() => isProfilePage ? handleEdit(p.id || p._id) : navigate(`/product/${p.id || p._id}`)}
+                          onClick={() =>
+                            isProfilePage
+                              ? handleEdit(p.id || p._id)
+                              : navigate(`/product/${p.id || p._id}`)
+                          }
                         />
                       </div>
                     )}
-                    <Card.Body className="p-4" onClick={() => !isProfilePage && navigate(`/product/${p.id || p._id}`)}>
+                    <Card.Body
+                      className="p-4"
+                      onClick={() =>
+                        !isProfilePage && navigate(`/product/${p.id || p._id}`)
+                      }
+                    >
                       <Card.Title className="fw-bold mb-2">{p.name}</Card.Title>
-                      <Card.Text className="text-muted small mb-3" style={{ minHeight: '48px' }}>
-                        {p.description ? (p.description.length > 100
-                          ? p.description.substring(0, 100) + '...'
-                          : p.description)
+                      <Card.Text
+                        className="text-muted small mb-3"
+                        style={{ minHeight: "48px" }}
+                      >
+                        {p.description
+                          ? p.description.length > 100
+                            ? p.description.substring(0, 100) + "..."
+                            : p.description
                           : "No description available"}
                       </Card.Text>
                       <div className="mb-3">
@@ -235,13 +263,24 @@ useEffect(() => {
                         </small>
                       </div>
                       <div className="d-flex justify-content-between align-items-center">
-                        <h5 className="text-primary mb-0 fw-bold">₹{p.price}<small className="text-muted">/day</small></h5>
-                        <Badge bg={p.available ? "success" : "danger"} className="px-3 py-2">
+                        <h5 className="text-primary mb-0 fw-bold">
+                          ₹{p.price}
+                          <small className="text-muted">/day</small>
+                        </h5>
+                        <Badge
+                          bg={p.available ? "success" : "danger"}
+                          className="px-3 py-2"
+                        >
                           {p.available ? "Available" : "Booked"}
                         </Badge>
                       </div>
                       {isProfilePage && (
-                        <Button variant="outline-primary" size="sm" className="mt-3" onClick={() => handleEdit(p.id || p._id)}>
+                        <Button
+                          variant="outline-primary"
+                          size="sm"
+                          className="mt-3"
+                          onClick={() => handleEdit(p.id || p._id)}
+                        >
                           Edit
                         </Button>
                       )}
