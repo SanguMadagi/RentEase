@@ -12,7 +12,7 @@
 //  Badge,
 //} from "react-bootstrap";
 //import { useNavigate, useLocation } from "react-router-dom";
-//import { searchProducts, getAllProducts, calculateDistance } from "../api";
+//import { searchProducts, getAllProducts, calculateDistance } from "../services/api";
 //
 //const ProductList = () => {
 //  const [query, setQuery] = useState("");
@@ -301,7 +301,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { searchProducts, getAllProducts, calculateDistance } from "../api";
+import { searchProducts, getAllProducts, calculateDistance } from "../services/api";
 
 const ProductList = () => {
   const [query, setQuery] = useState("");

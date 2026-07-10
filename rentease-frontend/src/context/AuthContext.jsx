@@ -59,7 +59,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           const API_BASE_URL =
-            process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+            import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
           await fetch(`${API_BASE_URL}/api/auth/logout`, {
             method: "POST",
             headers: {
@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }) => {
       if (token && isAuthenticated) {
         try {
           const API_BASE_URL =
-            process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+            import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
           const response = await fetch(
             `${API_BASE_URL}/api/auth/update-activity`,
             {

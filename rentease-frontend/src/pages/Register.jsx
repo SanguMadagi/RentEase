@@ -3,7 +3,7 @@
 //import { useNavigate, Link } from "react-router-dom";
 //
 //const API_BASE_URL =
-//  process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+//  import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 //
 //function Register() {
 //  const [name, setName] = useState("");
@@ -115,7 +115,7 @@
 //import React, { useState } from "react";
 //import { useNavigate, Link } from "react-router-dom";
 //
-//const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+//const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 //
 //function Register() {
 //  const [name, setName] = useState("");
@@ -228,8 +228,8 @@
 
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import authService from "./authService";
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+import authService from "../services/authService";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 function Register() {
   const [name, setName] = useState("");

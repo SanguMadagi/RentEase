@@ -12,7 +12,7 @@
 //  const [error, setError] = useState("");
 //  const [loading, setLoading] = useState(false);
 //  const API_BASE_URL =
-//    process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+//    import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 //
 //  useEffect(() => {
 //    if (!email) navigate("/forgot-password", { replace: true });
@@ -147,7 +147,7 @@ function ResetPassword() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:8080";
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
   useEffect(() => {
     if (!email) navigate("/forgot-password", { replace: true });

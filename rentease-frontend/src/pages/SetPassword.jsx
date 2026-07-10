@@ -1,7 +1,7 @@
 // import React, { useState, useEffect } from "react";
 // import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 // import { useLocation, useNavigate } from "react-router-dom";
-// import authService from "./authService";
+// import authService from "../services/authService";
 //
 // const SetPassword = () => {
 //   const [password, setPassword] = useState("");
@@ -134,7 +134,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import authService from "./authService";
+import authService from "../services/authService";
 
 const SetPassword = () => {
   const [password, setPassword] = useState("");

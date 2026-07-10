@@ -1,7 +1,7 @@
 //import React, { useState, useEffect } from "react";
 //import { Container, Card, Form, Button, Alert } from "react-bootstrap";
 //import { useNavigate, Link } from "react-router-dom";
-//import authService from "./authService";
+//import authService from "../services/authService";
 //import { useAuth } from "../context/AuthContext";
 //
 //function Login() {
@@ -192,7 +192,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import authService from "./authService";
+import authService from "../services/authService";
 import { useAuth } from "../context/AuthContext";
 
 function Login() {
