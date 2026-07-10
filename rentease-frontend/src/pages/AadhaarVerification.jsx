@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 function AadhaarVerification() {
   const [aadhaarNumber, setAadhaarNumber] = useState("");
@@ -91,7 +92,7 @@ function AadhaarVerification() {
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
             Identity Verification
           </h2>
-          <p className="text-slate-500 text-sm">
+          <p className="text-slate-500 text-sm text-center">
             Enter your 12-digit Aadhaar card details for instant verification.
           </p>
         </div>
@@ -113,36 +114,31 @@ function AadhaarVerification() {
               onChange={handleAadhaarChange}
               maxLength={14}
               required
-              className="w-full text-center py-3 text-xl font-bold tracking-widest border border-slate-200 rounded-xl shadow-sm placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full text-center py-3 text-xl font-bold tracking-widest border border-slate-200 rounded-xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
             <p className="text-slate-400 text-[10px] text-center mt-1.5 leading-relaxed">
               🔒 Details are encrypted end-to-end. We do not store full identity keys.
             </p>
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading || aadhaarNumber.replace(/\s/g, "").length !== 12}
-            className="w-full py-3 text-white font-bold rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-md disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none text-sm flex justify-center items-center"
+            loading={loading}
+            disabled={aadhaarNumber.replace(/\s/g, "").length !== 12}
+            className="w-full"
           >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-                Verifying ID...
-              </>
-            ) : (
-              "✓ Verify Identity"
-            )}
-          </button>
+            Verify Identity
+          </Button>
         </form>
 
         <div className="text-center mt-6 w-full">
-          <button
+          <Button
             onClick={() => navigate(-1)}
-            className="text-slate-400 hover:text-slate-700 text-sm font-semibold hover:underline"
+            variant="ghost"
+            className="text-slate-400 font-semibold"
           >
-            &larr; Go Back
-          </button>
+            Go Back
+          </Button>
         </div>
 
         <div className="mt-6 p-4 bg-slate-50 border border-slate-200 rounded-xl text-slate-500 text-[11px] leading-relaxed text-center">

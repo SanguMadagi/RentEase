@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import LogoutButton from "./Auth/LogoutButton";
 import Logo from "./Logo";
+import Button from "./Button";
 
 const Navbar = () => {
   const { isAuthenticated } = useAuth();
@@ -18,47 +19,52 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop/Tablet Navigation Links */}
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
+          <div className="hidden md:flex items-center space-x-4">
+            <Button
               to="/dashboard"
-              className="text-slate-600 hover:text-blue-600 transition text-sm font-semibold py-2 px-1"
+              variant="ghost"
+              className="text-slate-600 hover:text-blue-600 text-sm font-semibold h-10 px-3"
             >
               Explore
-            </Link>
+            </Button>
 
             {isAuthenticated && (
-              <Link
+              <Button
                 to="/add-product"
-                className="text-slate-600 hover:text-blue-600 transition text-sm font-semibold py-2 px-1"
+                variant="ghost"
+                className="text-slate-600 hover:text-blue-600 text-sm font-semibold h-10 px-3"
               >
                 Lend Item
-              </Link>
+              </Button>
             )}
 
             {isAuthenticated ? (
-              <div className="flex items-center space-x-4">
-                <Link
+              <div className="flex items-center space-x-3">
+                <Button
                   to="/profile"
-                  className="text-slate-600 hover:text-blue-600 transition text-sm font-semibold py-2 px-1"
+                  variant="ghost"
+                  className="text-slate-600 hover:text-blue-600 text-sm font-semibold h-10 px-3"
                 >
                   My Profile
-                </Link>
-                <LogoutButton className="bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-4 py-2 rounded-lg text-sm transition" />
+                </Button>
+                <LogoutButton className="h-10 px-4" variant="outline" />
               </div>
             ) : (
-              <div className="flex items-center space-x-4">
-                <Link
+              <div className="flex items-center space-x-3">
+                <Button
                   to="/login"
-                  className="text-slate-600 hover:text-blue-600 transition text-sm font-semibold py-2 px-3 rounded-lg"
+                  variant="ghost"
+                  className="text-slate-600 hover:text-blue-600 text-sm font-semibold h-10 px-4"
                 >
                   Login
-                </Link>
-                <Link
+                </Button>
+                <Button
                   to="/register"
-                  className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg text-sm shadow-sm transition"
+                  variant="primary"
+                  className="h-10 px-4"
                 >
                   Register
-                </Link>
+                </Button>
               </div>
             )}
           </div>
@@ -104,56 +110,59 @@ const Navbar = () => {
           isOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
         }`}
       >
-        <div className="px-4 pt-2 pb-4 space-y-2 flex flex-col">
-          <Link
+        <div className="px-4 pt-3 pb-5 space-y-3 flex flex-col">
+          <Button
             to="/dashboard"
+            variant="ghost"
             onClick={() => setIsOpen(false)}
-            className="text-slate-700 hover:bg-slate-50 hover:text-blue-600 px-3 py-2.5 rounded-lg text-sm font-semibold transition"
+            className="w-full text-slate-700 hover:text-blue-600 justify-start"
           >
             Explore Listings
-          </Link>
+          </Button>
 
           {isAuthenticated && (
-            <Link
+            <Button
               to="/add-product"
+              variant="ghost"
               onClick={() => setIsOpen(false)}
-              className="text-slate-700 hover:bg-slate-50 hover:text-blue-600 px-3 py-2.5 rounded-lg text-sm font-semibold transition"
+              className="w-full text-slate-700 hover:text-blue-600 justify-start"
             >
               Lend Item
-            </Link>
+            </Button>
           )}
 
           <hr className="border-slate-100 my-1" />
 
           {isAuthenticated ? (
-            <div className="space-y-2 flex flex-col">
-              <Link
+            <div className="space-y-3 flex flex-col">
+              <Button
                 to="/profile"
+                variant="ghost"
                 onClick={() => setIsOpen(false)}
-                className="text-slate-700 hover:bg-slate-50 hover:text-blue-600 px-3 py-2.5 rounded-lg text-sm font-semibold transition"
+                className="w-full text-slate-700 hover:text-blue-600 justify-start"
               >
                 My Profile
-              </Link>
-              <div className="px-3">
-                <LogoutButton className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-2.5 rounded-lg text-sm transition text-center" />
-              </div>
+              </Button>
+              <LogoutButton className="w-full" variant="outline" onClick={() => setIsOpen(false)} />
             </div>
           ) : (
-            <div className="space-y-2 flex flex-col px-3">
-              <Link
+            <div className="space-y-3 flex flex-col">
+              <Button
                 to="/login"
+                variant="outline"
                 onClick={() => setIsOpen(false)}
-                className="w-full border border-slate-200 text-slate-700 font-semibold py-2.5 rounded-lg text-sm hover:bg-slate-50 transition text-center"
+                className="w-full"
               >
                 Login
-              </Link>
-              <Link
+              </Button>
+              <Button
                 to="/register"
+                variant="primary"
                 onClick={() => setIsOpen(false)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-lg text-sm transition text-center shadow-sm"
+                className="w-full"
               >
                 Register
-              </Link>
+              </Button>
             </div>
           )}
         </div>

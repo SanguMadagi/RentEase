@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 function ResetPassword() {
   const location = useLocation();
@@ -70,7 +71,7 @@ function ResetPassword() {
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
             Reset Password
           </h2>
-          <p className="text-gray-500 text-sm">
+          <p className="text-slate-500 text-sm text-center">
             Enter the 6-digit code sent to <strong className="text-slate-700">{email}</strong> and your new password.
           </p>
         </div>
@@ -86,7 +87,7 @@ function ResetPassword() {
 
         <form onSubmit={handleReset} className="space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
               OTP Code
             </label>
             <input
@@ -98,12 +99,12 @@ function ResetPassword() {
               }
               maxLength={6}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-center tracking-widest transition"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm text-center tracking-widest transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
               New Password
             </label>
             <input
@@ -112,20 +113,18 @@ function ResetPassword() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading || otp.length !== 6 || !password}
-            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg shadow-md transition text-sm flex justify-center items-center disabled:opacity-50"
+            loading={loading}
+            disabled={otp.length !== 6 || !password}
+            className="w-full"
           >
-            {loading && (
-              <span className="animate-spin border-t-2 border-b-2 border-white rounded-full h-4 w-4 mr-2"></span>
-            )}
-            {loading ? "Resetting..." : "Reset Password"}
-          </button>
+            Reset Password
+          </Button>
         </form>
 
         <div className="text-center mt-6">

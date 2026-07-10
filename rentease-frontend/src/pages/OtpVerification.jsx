@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
@@ -132,7 +133,7 @@ function OtpVerification() {
 
         <div className="text-center mb-6 w-full">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Verify OTP</h2>
-          <p className="text-gray-500 text-sm mb-1">We’ve sent a 6-digit verification code to</p>
+          <p className="text-slate-500 text-sm mb-1">We’ve sent a 6-digit verification code to</p>
           <strong className="text-slate-700 text-sm break-all">{email}</strong>
         </div>
 
@@ -147,7 +148,7 @@ function OtpVerification() {
 
         <form onSubmit={handleVerify} className="w-full space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1 text-center">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 text-center">
               OTP Code
             </label>
             <input
@@ -159,40 +160,36 @@ function OtpVerification() {
               }
               maxLength={6}
               required
-              className="w-full text-center py-3 text-2xl font-bold tracking-widest border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              className="w-full text-center py-3 text-2xl font-bold tracking-widest border border-slate-200 rounded-xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading || otp.length !== 6}
-            className={`w-full py-2.5 text-white font-semibold rounded-lg shadow-md transition ${
-              loading || otp.length !== 6
-                ? "bg-blue-300 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-            } text-sm`}
+            loading={loading}
+            disabled={otp.length !== 6}
+            className="w-full"
           >
-            {loading ? "Verifying..." : "Verify & Continue"}
-          </button>
+            Verify & Continue
+          </Button>
         </form>
 
-        <div className="text-center mt-6 w-full">
-          <p className="text-gray-500 text-sm mb-2">Didn't receive the OTP?</p>
-          <button
+        <div className="text-center mt-6 w-full space-y-2">
+          <p className="text-slate-500 text-sm">Didn't receive the OTP?</p>
+          <Button
             onClick={handleResendOtp}
-            disabled={resendLoading}
-            className={`text-blue-600 font-semibold hover:underline text-sm ${
-              resendLoading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+            loading={resendLoading}
+            variant="ghost"
+            className="text-blue-600 font-semibold h-10"
           >
-            {resendLoading ? "Resending..." : "Resend OTP Code"}
-          </button>
+            Resend OTP Code
+          </Button>
         </div>
 
         <div className="text-center mt-6">
           <Link
             to={purpose === "REGISTER" ? "/register" : "/login"}
-            className="text-gray-500 text-sm font-semibold hover:underline"
+            className="text-slate-400 text-sm font-semibold hover:underline"
           >
             ← Back
           </Link>

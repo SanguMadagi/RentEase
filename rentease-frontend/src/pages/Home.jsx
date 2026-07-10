@@ -1,7 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 function Home() {
   const { isAuthenticated } = useAuth();
@@ -85,18 +85,20 @@ function Home() {
               RentEase lets you rent homes, trekking gears, cameras, tools, and vehicles directly from verified members in your area. Secure circular economy starts here.
             </p>
             <div className="flex flex-col sm:flex-row justify-center lg:justify-start gap-4">
-              <Link
+              <Button
                 to="/dashboard"
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg transition duration-300 text-center text-sm"
+                variant="primary"
+                className="px-8"
               >
                 Browse Listings
-              </Link>
-              <Link
+              </Button>
+              <Button
                 to={isAuthenticated ? "/add-product" : "/login"}
-                className="px-8 py-4 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-semibold rounded-xl transition duration-300 text-center text-sm"
+                variant="outline"
+                className="px-8 border-slate-700 hover:bg-slate-800 hover:text-white text-slate-200"
               >
                 Start Lending Products
-              </Link>
+              </Button>
             </div>
           </div>
           <div className="w-full lg:w-1/2 flex justify-center relative">
@@ -205,12 +207,13 @@ function Home() {
             <h2 className="text-sm font-bold uppercase tracking-widest text-blue-600 mb-2">Top Rentals</h2>
             <h3 className="text-3xl font-extrabold text-slate-900">Popular items in your area</h3>
           </div>
-          <Link
+          <Button
             to="/dashboard"
-            className="text-blue-600 font-semibold text-sm hover:underline mt-4 sm:mt-0 flex items-center gap-1"
+            variant="ghost"
+            className="text-blue-600 font-bold text-sm hover:underline mt-4 sm:mt-0 px-2 h-9"
           >
             See all listings &rarr;
-          </Link>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -236,12 +239,13 @@ function Home() {
                     <span className="text-xs text-slate-400 block">Rental Price</span>
                     <span className="text-blue-600 font-extrabold text-lg">{p.price}</span>
                   </div>
-                  <Link
+                  <Button
                     to={isAuthenticated ? `/product/${p.id}` : "/login"}
-                    className="px-4 py-2.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-blue-600 transition shadow-sm"
+                    variant="secondary"
+                    className="h-10 px-4"
                   >
                     Rent Now
-                  </Link>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -368,12 +372,13 @@ function Home() {
             Join thousands of neighbors who are already saving money and earning income listing active properties and goods.
           </p>
           <div className="pt-4">
-            <Link
+            <Button
               to="/register"
-              className="px-8 py-4 bg-white text-blue-700 font-semibold rounded-xl shadow-lg hover:bg-blue-50 transition duration-300 text-sm inline-block"
+              variant="outline"
+              className="bg-white hover:bg-slate-100 text-blue-700 border-none font-bold"
             >
               Create Free Account
-            </Link>
+            </Button>
           </div>
         </div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-indigo-500/20 via-transparent to-transparent pointer-events-none"></div>

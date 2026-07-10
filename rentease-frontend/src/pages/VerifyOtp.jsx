@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import authService from "../services/authService";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
@@ -87,7 +88,7 @@ function VerifyOtp() {
 
         <div className="text-center mb-6 w-full">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Verify OTP</h2>
-          <p className="text-gray-500 text-sm mb-1">OTP sent to:</p>
+          <p className="text-slate-500 text-sm mb-1">OTP sent to:</p>
           <strong className="text-slate-700 text-sm break-all">{email || "N/A"}</strong>
         </div>
 
@@ -97,25 +98,27 @@ function VerifyOtp() {
           value={otp}
           onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
           maxLength={6}
-          className="w-full text-center py-3 text-2xl font-bold tracking-widest border border-slate-200 rounded-xl shadow-sm placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-6 transition"
+          className="w-full text-center py-3 text-2xl font-bold tracking-widest border border-slate-200 rounded-xl shadow-inner placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-6 transition"
         />
 
         <div className="flex gap-3 w-full">
-          <button
+          <Button
             onClick={handleVerify}
-            disabled={loading}
-            className="flex-1 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50"
+            loading={loading}
+            variant="primary"
+            className="flex-1"
           >
-            {loading ? "Verifying..." : "Verify OTP"}
-          </button>
+            Verify OTP
+          </Button>
 
-          <button
+          <Button
             onClick={handleResendOtp}
-            disabled={loading}
-            className="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition border border-slate-200/60"
+            loading={loading}
+            variant="outline"
+            className="flex-1"
           >
-            {loading ? "Resending..." : "Resend OTP"}
-          </button>
+            Resend OTP
+          </Button>
         </div>
 
         <div className="text-center mt-6">

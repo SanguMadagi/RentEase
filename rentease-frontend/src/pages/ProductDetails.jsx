@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import MapView from "../components/MapView";
+import Button from "../components/Button";
 
 function ProductDetails() {
   const { id } = useParams();
@@ -11,7 +12,6 @@ function ProductDetails() {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState("");
   const [loading, setLoading] = useState(true);
-  const [bookingLoading, setBookingLoading] = useState(false);
   const [reviewLoading, setReviewLoading] = useState(false);
   const [error, setError] = useState("");
   const [showContactModal, setShowContactModal] = useState(false);
@@ -136,12 +136,12 @@ function ProductDetails() {
     return (
       <div className="max-w-md mx-auto mt-16 text-center bg-white border border-slate-200 p-8 rounded-2xl shadow-sm">
         <p className="text-red-500 mb-6 font-semibold">{error || "Product not found"}</p>
-        <button
+        <Button
           onClick={() => navigate("/dashboard")}
-          className="px-5 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition"
+          variant="primary"
         >
           Back to Listings
-        </button>
+        </Button>
       </div>
     );
   }
@@ -195,14 +195,15 @@ function ProductDetails() {
                   {product.locationName && <p className="text-slate-500 text-sm mt-1">{product.locationName}</p>}
                 </div>
                 {product.latitude && product.longitude && (
-                  <a
+                  <Button
                     href={`https://www.google.com/maps?q=${product.latitude},${product.longitude}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-4 py-2.5 rounded-xl transition shadow-sm border border-slate-200/60"
+                    variant="outline"
+                    className="h-10 text-xs shrink-0"
                   >
                     🗺️ Open in Google Maps
-                  </a>
+                  </Button>
                 )}
               </div>
 
@@ -261,13 +262,15 @@ function ProductDetails() {
                     className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition placeholder-slate-400"
                   />
                 </div>
-                <button
+                <Button
                   onClick={handleReview}
-                  disabled={reviewLoading || !comment.trim()}
-                  className="px-5 py-2.5 bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl text-xs transition shadow-sm disabled:opacity-50"
+                  disabled={!comment.trim()}
+                  loading={reviewLoading}
+                  variant="secondary"
+                  className="h-10 text-xs"
                 >
-                  {reviewLoading ? "Submitting..." : "Submit Review"}
-                </button>
+                  Submit Review
+                </Button>
               </div>
             </div>
           </div>
@@ -305,79 +308,99 @@ function ProductDetails() {
             </div>
 
             <div className="flex flex-col gap-3">
-              <button
+              <Button
                 onClick={handleBooking}
                 disabled={!product.available}
-                className="w-full py-3 text-white font-bold rounded-xl bg-blue-600 hover:bg-blue-700 transition shadow-md disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none text-sm"
+                variant="primary"
+                className="w-full"
               >
                 {!userProfile?.aadhaarVerified ? "🔒 Verify & Book" : "📅 Book Now"}
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleContactOwner}
-                className="w-full py-3 text-slate-700 font-bold rounded-xl border border-slate-200 hover:bg-slate-50 transition text-sm"
+                variant="outline"
+                className="w-full"
               >
                 📞 Contact Product Owner
-              </button>
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Contact Owner Modal Popup */}
+      {/* Redesigned Owner Details Modal Popup */}
       {showContactModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex justify-between items-center mb-6">
-              <h5 className="font-bold text-slate-900 text-lg">📞 Owner Details</h5>
-              <button onClick={() => setShowContactModal(false)} className="text-slate-400 hover:text-slate-700 text-xl font-bold p-1">
-                ✕
-              </button>
+          <div className="bg-white rounded-2xl w-full max-w-md p-8 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200 relative">
+            {/* Subtle close cross button */}
+            <button
+              onClick={() => setShowContactModal(false)}
+              className="absolute top-5 right-5 text-slate-400 hover:text-slate-600 transition p-1"
+              aria-label="Close modal"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            <div className="mb-6 flex items-center gap-3">
+              <div className="bg-blue-50 text-blue-600 w-10 h-10 rounded-xl flex items-center justify-center text-lg shadow-sm">
+                📞
+              </div>
+              <h3 className="font-extrabold text-slate-900 text-lg">Owner Contact</h3>
             </div>
+
             {owner ? (
-              <div className="space-y-4 text-sm text-slate-600">
-                <div className="flex justify-between border-b border-slate-100 pb-2">
-                  <span className="font-semibold text-slate-400">Username</span>
-                  <span className="font-bold text-slate-800">{owner.username || "Not provided"}</span>
+              <div className="space-y-6">
+                {/* Username information card row */}
+                <div className="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-1">
+                  <span className="block text-[10px] tracking-wider text-slate-400 uppercase font-bold">Lender Profile</span>
+                  <span className="block font-bold text-slate-800 text-base">{owner.username || "Not provided"}</span>
                 </div>
-                {owner.phone && (
-                  <div className="flex justify-between border-b border-slate-100 pb-2">
-                    <span className="font-semibold text-slate-400">Phone</span>
-                    <a href={`tel:${owner.phone}`} className="text-blue-600 font-bold hover:underline">
-                      {owner.phone}
-                    </a>
-                  </div>
-                )}
-                {owner.email && (
-                  <div className="flex justify-between border-b border-slate-100 pb-2">
-                    <span className="font-semibold text-slate-400">Email</span>
-                    <a href={`mailto:${owner.email}`} className="text-blue-600 font-bold hover:underline break-all">
-                      {owner.email}
-                    </a>
-                  </div>
-                )}
-                <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-xl text-blue-700 text-[11px] leading-relaxed">
-                  💡 Contact the owner directly to arrange details of checkout, item condition inspection, and pick-up timing.
+
+                {/* Contact information rows */}
+                <div className="space-y-4 pt-1">
+                  {owner.phone && (
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-[10px] tracking-wider text-slate-400 uppercase font-bold">Phone Number</span>
+                      <a
+                        href={`tel:${owner.phone}`}
+                        className="text-base text-blue-600 hover:text-blue-700 font-bold hover:underline transition flex items-center gap-1.5"
+                      >
+                        <span className="text-xs">📞</span> {owner.phone}
+                      </a>
+                    </div>
+                  )}
+
+                  {owner.email && (
+                    <div className="flex flex-col space-y-1">
+                      <span className="text-[10px] tracking-wider text-slate-400 uppercase font-bold">Email Address</span>
+                      <a
+                        href={`mailto:${owner.email}`}
+                        className="text-base text-blue-600 hover:text-blue-700 font-bold hover:underline transition break-all flex items-center gap-1.5"
+                      >
+                        <span className="text-xs">✉️</span> {owner.email}
+                      </a>
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-3.5 bg-blue-50/50 border border-blue-100 rounded-xl text-blue-800 text-[11px] leading-relaxed">
+                  💡 You can call or email the lender directly to discuss pickup coordinates, item conditions, or scheduling details.
                 </div>
               </div>
             ) : (
-              <p className="text-slate-400 text-sm italic">Owner information is currently not available.</p>
+              <p className="text-slate-400 text-sm italic py-4 text-center">Owner information is currently not available.</p>
             )}
-            <div className="flex justify-end gap-3 mt-6">
-              <button
+
+            <div className="mt-8">
+              <Button
                 onClick={() => setShowContactModal(false)}
-                className="px-4.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition"
+                variant="secondary"
+                className="w-full"
               >
                 Close
-              </button>
-              {owner?.phone && (
-                <a
-                  href={`tel:${owner.phone}`}
-                  className="px-4.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition shadow-sm"
-                  onClick={() => setShowContactModal(false)}
-                >
-                  Call Now
-                </a>
-              )}
+              </Button>
             </div>
           </div>
         </div>

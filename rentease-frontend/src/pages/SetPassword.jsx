@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
 import authService from "../services/authService";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 const SetPassword = () => {
   const [password, setPassword] = useState("");
@@ -63,7 +64,7 @@ const SetPassword = () => {
 
         <div className="text-center mb-6 w-full">
           <h2 className="text-2xl font-bold text-gray-900 mb-1">Set Your Password</h2>
-          <p className="text-gray-500 text-sm mb-1">Creating account for</p>
+          <p className="text-slate-500 text-sm mb-1">Creating account for</p>
           <strong className="text-slate-700 text-sm break-all">{email}</strong>
         </div>
 
@@ -76,45 +77,42 @@ const SetPassword = () => {
 
         <form onSubmit={handleSetPassword} className="w-full space-y-5">
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Password</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Password</label>
             <input
               type="password"
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">Confirm Password</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Confirm Password</label>
             <input
               type="password"
               placeholder="••••••••"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-lg shadow-md transition text-sm flex justify-center items-center disabled:opacity-50"
+            loading={loading}
+            className="w-full"
           >
-            {loading && (
-              <span className="animate-spin border-t-2 border-b-2 border-white rounded-full h-4 w-4 mr-2"></span>
-            )}
-            {loading ? "Creating Account..." : "Create Account"}
-          </button>
+            Create Account
+          </Button>
         </form>
 
         <div className="text-center mt-6">
           <Link
             to="/register"
-            className="text-gray-500 text-sm font-semibold hover:underline"
+            className="text-slate-500 text-sm font-semibold hover:underline"
           >
             ← Back to Register
           </Link>

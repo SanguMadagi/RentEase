@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
+import Button from "../components/Button";
 
 function AddProduct() {
   const navigate = useNavigate();
@@ -222,7 +223,7 @@ function AddProduct() {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   required
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
                 />
               </div>
 
@@ -236,7 +237,7 @@ function AddProduct() {
                     setFormData({ ...formData, description: e.target.value })
                   }
                   required
-                  className="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+                  className="w-full px-4 py-3 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
                 />
               </div>
 
@@ -253,7 +254,7 @@ function AddProduct() {
                     setFormData({ ...formData, price: e.target.value })
                   }
                   required
-                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+                  className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
                 />
               </div>
 
@@ -263,21 +264,19 @@ function AddProduct() {
                   <span>📍</span> Coordinates & Location Details
                 </div>
                 
-                <button
+                <Button
                   type="button"
                   onClick={getCurrentLocation}
-                  disabled={locationLoading}
-                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs transition shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+                  loading={locationLoading}
+                  variant="primary"
+                  className="w-full"
                 >
-                  {locationLoading && (
-                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                  )}
-                  {locationLoading ? "Acquiring Coordinates..." : "Detect My Location"}
-                </button>
+                  Detect My Location
+                </Button>
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Detected Address</label>
+                    <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1.5">Detected Address</label>
                     <textarea
                       rows={2}
                       placeholder="Street, City, State..."
@@ -285,12 +284,12 @@ function AddProduct() {
                       onChange={(e) =>
                         setFormData({ ...formData, address: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition"
+                      className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition shadow-inner"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Location / Locality Name</label>
+                    <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1.5">Location / Locality Name</label>
                     <input
                       type="text"
                       placeholder="e.g. HSR Layout"
@@ -298,13 +297,13 @@ function AddProduct() {
                       onChange={(e) =>
                         setFormData({ ...formData, locationName: e.target.value })
                       }
-                      className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition"
+                      className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition shadow-inner"
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Latitude *</label>
+                      <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1.5">Latitude *</label>
                       <input
                         type="number"
                         step="0.000001"
@@ -313,11 +312,11 @@ function AddProduct() {
                           setFormData({ ...formData, latitude: e.target.value })
                         }
                         required
-                        className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition"
+                        className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition shadow-inner"
                       />
                     </div>
                     <div>
-                      <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1">Longitude *</label>
+                      <label className="block text-[11px] font-semibold text-slate-400 uppercase mb-1.5">Longitude *</label>
                       <input
                         type="number"
                         step="0.000001"
@@ -326,7 +325,7 @@ function AddProduct() {
                           setFormData({ ...formData, longitude: e.target.value })
                         }
                         required
-                        className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition"
+                        className="w-full px-4 py-2 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-xs transition shadow-inner"
                       />
                     </div>
                   </div>
@@ -371,27 +370,22 @@ function AddProduct() {
                 )}
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-3 pt-6 border-t border-slate-100">
-                <button
+              <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-slate-100">
+                <Button
                   type="submit"
-                  disabled={loading}
-                  className="flex-1 py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold rounded-xl text-sm transition shadow-md disabled:opacity-50"
+                  loading={loading}
+                  variant="primary"
+                  className="flex-1"
                 >
-                  {loading
-                    ? isEditMode
-                      ? "Updating Listing..."
-                      : "Adding Listing..."
-                    : isEditMode
-                    ? "Update Listing"
-                    : "Publish Listing"}
-                </button>
-                <button
-                  type="button"
+                  {isEditMode ? "Update Listing" : "Publish Listing"}
+                </Button>
+                <Button
                   onClick={() => navigate("/profile")}
-                  className="flex-1 py-3 border border-slate-200 text-slate-700 font-bold rounded-xl text-sm hover:bg-slate-50 transition"
+                  variant="outline"
+                  className="flex-1"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             </form>
           </div>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 function Payment() {
   const [loading, setLoading] = useState(false);
@@ -158,28 +159,23 @@ function Payment() {
           </div>
         )}
 
-        <button
+        <Button
           onClick={handlePayment}
-          disabled={loading}
-          className="w-full py-3 bg-green-600 hover:bg-green-700 active:bg-green-800 text-white font-bold rounded-xl shadow-md transition disabled:opacity-50 text-sm flex justify-center items-center"
+          loading={loading}
+          variant="success"
+          className="w-full"
         >
-          {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mr-2"></div>
-              Processing Transaction...
-            </>
-          ) : (
-            "💳 Complete Payment & Book"
-          )}
-        </button>
+          Complete Payment & Book
+        </Button>
 
-        <div className="text-center mt-6">
-          <button
+        <div className="text-center mt-6 w-full">
+          <Button
             onClick={() => navigate(-1)}
-            className="text-slate-400 hover:text-slate-700 text-sm font-semibold hover:underline"
+            variant="ghost"
+            className="text-slate-400 font-semibold"
           >
-            &larr; Cancel Booking
-          </button>
+            Cancel Booking
+          </Button>
         </div>
       </div>
     </div>

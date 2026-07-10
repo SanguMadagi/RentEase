@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { searchProducts, getAllProducts, calculateDistance } from "../services/api";
+import Button from "../components/Button";
 
 const ProductList = () => {
   const [query, setQuery] = useState("");
@@ -108,12 +109,13 @@ const ProductList = () => {
             }
           </p>
         </div>
-        <button
+        <Button
           onClick={() => navigate("/add-product")}
-          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition text-sm flex items-center gap-1.5 shrink-0"
+          variant="primary"
+          className="shrink-0 h-11 px-5"
         >
-          <span>+</span> List an Item
-        </button>
+          + List an Item
+        </Button>
       </div>
 
       {/* Modern Search & Filters Panel */}
@@ -133,24 +135,26 @@ const ProductList = () => {
             />
           </div>
           <div className="flex gap-2 shrink-0">
-            <button
+            <Button
               onClick={handleSearch}
-              disabled={loading}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition shadow-sm disabled:opacity-50 flex items-center gap-2"
+              loading={loading}
+              variant="primary"
+              className="h-11 px-6"
             >
-              {loading ? "Searching..." : "Search"}
-            </button>
+              Search
+            </Button>
             {query && (
-              <button
+              <Button
                 onClick={() => {
                   setQuery("");
                   loadProducts();
                 }}
                 disabled={loading}
-                className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition"
+                variant="outline"
+                className="h-11 px-4"
               >
                 Clear
-              </button>
+              </Button>
             )}
           </div>
         </div>
@@ -244,19 +248,21 @@ const ProductList = () => {
                   </div>
                   
                   {isProfilePage ? (
-                    <button
+                    <Button
                       onClick={() => handleEdit(prodId)}
-                      className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 font-bold rounded-xl py-2.5 text-xs transition duration-300"
+                      variant="outline"
+                      className="w-full"
                     >
                       Edit Listing
-                    </button>
+                    </Button>
                   ) : (
-                    <button
+                    <Button
                       onClick={() => navigate(`/product/${prodId}`)}
-                      className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-2.5 text-xs transition duration-300 shadow-sm"
+                      variant="secondary"
+                      className="w-full"
                     >
                       View Details
-                    </button>
+                    </Button>
                   )}
                 </div>
               </div>

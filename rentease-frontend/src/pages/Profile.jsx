@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import Button from "../components/Button";
 
 function Profile() {
   const [user, setUser] = useState(null);
@@ -185,19 +186,19 @@ function Profile() {
           </span>
 
           {!user.aadhaarVerified && (
-            <div className="w-full bg-amber-50 border border-amber-200 rounded-xl p-4 text-left space-y-2.5">
+            <div className="w-full bg-amber-50/50 border border-amber-200 rounded-xl p-4 text-left space-y-2.5">
               <h5 className="font-bold text-amber-800 text-xs flex items-center gap-1">
                 ⚠️ Verification Pending
               </h5>
               <p className="text-amber-700/80 text-[11px] leading-relaxed">
                 Complete your identity check to be eligible for renting properties and high-value gear.
               </p>
-              <button
+              <Button
                 onClick={() => navigate("/verify-aadhaar")}
-                className="w-full py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg text-xs transition shadow-sm"
+                className="w-full bg-amber-600 hover:bg-amber-700 hover:text-white border-none"
               >
                 Verify Aadhaar Now
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -211,12 +212,13 @@ function Profile() {
             <div className="flex justify-between items-center pb-4 border-b border-slate-100">
               <h3 className="text-lg font-bold text-slate-900">Personal Information</h3>
               {!editMode && (
-                <button
+                <Button
                   onClick={() => setEditMode(true)}
-                  className="text-xs border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold px-4.5 py-2 rounded-xl transition shadow-sm"
+                  variant="outline"
+                  className="h-10 text-xs"
                 >
                   Edit Profile
-                </button>
+                </Button>
               )}
             </div>
 
@@ -340,27 +342,23 @@ function Profile() {
             </div>
 
             {editMode && (
-              <div className="flex gap-3 pt-4 border-t border-slate-100">
-                <button
+              <div className="flex gap-4 pt-4 border-t border-slate-100">
+                <Button
                   onClick={handleSave}
-                  disabled={saving}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center disabled:opacity-50"
+                  loading={saving}
+                  variant="primary"
                 >
-                  {saving && (
-                    <div className="animate-spin rounded-full h-4.5 w-4.5 border-t-2 border-b-2 border-white mr-2"></div>
-                  )}
                   Save Changes
-                </button>
-                <button
+                </Button>
+                <Button
                   onClick={() => {
                     setEditMode(false);
                     fetchProfile();
                   }}
-                  disabled={saving}
-                  className="px-5 py-2.5 border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-xl text-xs transition"
+                  variant="outline"
                 >
                   Cancel
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -404,19 +402,21 @@ function Profile() {
                           <h5 className="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition truncate">{product.name}</h5>
                           <span className="text-blue-600 font-extrabold text-xs block mt-1">₹{product.price} / day</span>
                         </div>
-                        <div className="flex gap-2.5 pt-3 border-t border-slate-100">
-                          <button
+                        <div className="flex gap-3.5 pt-3 border-t border-slate-100">
+                          <Button
                             onClick={() => navigate(`/add-product/${prodId}`)}
-                            className="flex-1 border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold rounded-lg py-2 text-xs transition text-center"
+                            variant="outline"
+                            className="flex-1"
                           >
-                            ✏️ Edit
-                          </button>
-                          <button
+                            Edit
+                          </Button>
+                          <Button
                             onClick={() => handleDeleteProduct(prodId)}
-                            className="flex-1 border border-red-200 hover:bg-red-50 text-red-600 font-bold rounded-lg py-2 text-xs transition text-center"
+                            variant="danger"
+                            className="flex-1"
                           >
-                            🗑 Delete
-                          </button>
+                            Delete
+                          </Button>
                         </div>
                       </div>
                     </div>

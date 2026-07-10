@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Logo from "../components/Logo";
+import Button from "../components/Button";
 
 function ForgotPassword() {
   const [email, setEmail] = useState("");
@@ -51,7 +52,7 @@ function ForgotPassword() {
           <h2 className="text-2xl font-bold text-gray-900 mb-1">
             Forgot Password
           </h2>
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-500 text-sm text-center">
             Enter your email to receive a password reset verification code.
           </p>
         </div>
@@ -67,7 +68,7 @@ function ForgotPassword() {
 
         <form className="space-y-5" onSubmit={handleSendOtp}>
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
               Email Address
             </label>
             <input
@@ -76,21 +77,17 @@ function ForgotPassword() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
-            disabled={loading}
-            className={`w-full py-2.5 text-white font-semibold rounded-lg shadow-md transition ${
-              loading
-                ? "bg-blue-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-            } text-sm`}
+            loading={loading}
+            className="w-full"
           >
-            {loading ? "Sending OTP..." : "Get Reset OTP"}
-          </button>
+            Get Reset OTP
+          </Button>
         </form>
 
         <div className="text-center mt-6">

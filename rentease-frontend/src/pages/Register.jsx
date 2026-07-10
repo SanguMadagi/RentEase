@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import authService from "../services/authService";
+import Button from "../components/Button";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -41,7 +42,7 @@ function Register() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row">
+      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col md:flex-row border border-slate-100">
         {/* Left Panel: SaaS Welcome (Hidden on Mobile) */}
         <div className="hidden md:flex md:w-1/2 bg-blue-600 p-12 text-white flex-col justify-between">
           <div>
@@ -52,7 +53,7 @@ function Register() {
               Join Your Local Lending Community
             </h1>
             <p className="text-blue-100 text-sm">
-              Create an account to start listering properties or renting products from trusted members in your local area. Safe, simple, and shared.
+              Create an account to start listing properties or renting products from trusted members in your local area. Safe, simple, and shared.
             </p>
           </div>
           <div className="text-xs text-blue-200">
@@ -66,7 +67,7 @@ function Register() {
             <h2 className="text-2xl font-bold text-gray-900 mb-1">
               Create an account
             </h2>
-            <p className="text-gray-500 text-sm">
+            <p className="text-slate-500 text-sm">
               Join RentEase and explore local listings today.
             </p>
           </div>
@@ -81,13 +82,14 @@ function Register() {
           )}
 
           {/* Social Sign-In */}
-          <button
+          <Button
             onClick={authService.loginWithGoogle}
-            className="w-full flex items-center justify-center border border-gray-200 rounded-lg py-2.5 hover:bg-slate-50 transition mb-6 font-medium text-gray-700 text-sm shadow-sm"
+            variant="outline"
+            className="w-full flex items-center justify-center mb-6"
           >
             <img src="/google-logo.png" alt="Google" className="h-5 w-5 mr-3" />
             Sign up with Google
-          </button>
+          </Button>
 
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
@@ -100,7 +102,7 @@ function Register() {
 
           <form onSubmit={handleSendOtp} className="space-y-5">
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
                 Full Name
               </label>
               <input
@@ -108,13 +110,13 @@ function Register() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
                 placeholder="John Doe"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-gray-600 mb-1">
+              <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 mb-1">
                 Email Address
               </label>
               <input
@@ -122,29 +124,26 @@ function Register() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+                className="w-full px-4 py-2.5 border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
                 placeholder="you@example.com"
               />
-              <p className="text-gray-400 text-[11px] mt-1">
+              <p className="text-slate-400 text-[11px] mt-1.5 leading-relaxed">
                 We will send you a verification OTP to verify your email.
               </p>
             </div>
 
-            <button
+            <Button
               type="submit"
-              disabled={loading}
-              className={`w-full py-2.5 text-white font-semibold rounded-lg shadow-md transition ${
-                loading
-                  ? "bg-blue-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700 active:bg-blue-800"
-              } text-sm`}
+              loading={loading}
+              variant="primary"
+              className="w-full"
             >
-              {loading ? "Sending OTP..." : "Get Verification OTP"}
-            </button>
+              Get Verification OTP
+            </Button>
           </form>
 
           <div className="text-center mt-6">
-            <p className="text-gray-500 text-sm">
+            <p className="text-slate-500 text-sm">
               Already have an account?{" "}
               <Link to="/login" className="text-blue-600 font-semibold hover:underline">
                 Sign In
