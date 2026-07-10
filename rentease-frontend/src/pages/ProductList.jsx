@@ -1,21 +1,72 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { searchProducts, getAllProducts, calculateDistance } from "../services/api";
+import { useProducts } from "../context/ProductContext";
 import Button from "../components/Button";
 
+// Category definitions
+const CATEGORIES = [
+  "All",
+  "Properties & Homes",
+  "Adventure & Outdoors",
+  "Camera & Electronics",
+  "Tools & Equipment",
+  "Vehicles & Transport",
+  "Events & Party Gear"
+];
+
+// Client-side category matching helper
+const matchCategory = (product, category) => {
+  if (category === "All") return true;
+
+  const keywords = {
+    "Properties & Homes": ["flat", "apartment", "home", "house", "room", "villa", "cozy 2bhk", "bhk", "stay", "property", "residential"],
+    "Adventure & Outdoors": ["trek", "hike", "hiking", "camping", "tent", "mountain", "bagpack", "gear kit", "backpack", "outdoor", "sleeping bag"],
+    "Camera & Electronics": ["camera", "dslr", "lens", "sony", "canon", "nikon", "alpha", "tripod", "mic", "gopro", "electronic", "lens", "flash"],
+    "Tools & Equipment": ["tool", "drill", "saw", "mower", "ladder", "hammer", "wrench", "equipment", "cutter", "toolkit"],
+    "Vehicles & Transport": ["car", "bike", "cycle", "vehicle", "scooter", "sedan", "suv", "transport", "scooty"],
+    "Events & Party Gear": ["party", "event", "stage", "light", "speaker", "sound", "projector", "mic", "gear", "karaoke"]
+  };
+
+  const words = keywords[category] || [];
+  const name = (product.name || "").toLowerCase();
+  const desc = (product.description || "").toLowerCase();
+
+  return words.some(w => name.includes(w) || desc.includes(w));
+};
+
 const ProductList = () => {
-  const [query, setQuery] = useState("");
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [userLocation, setUserLocation] = useState({ lat: null, lon: null });
+  const {
+    products,
+    loading,
+    error,
+    searchQuery,
+    setSearchQuery,
+    selectedCategory,
+    setSelectedCategory,
+    sortBy,
+    setSortBy,
+    scrollPosition,
+    setScrollPosition,
+    userLocation,
+    setUserLocation,
+    lastFetched,
+    fetchProducts,
+  } = useProducts();
+
+  const [localQuery, setLocalQuery] = useState(searchQuery);
   const [locationReady, setLocationReady] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
   const isProfilePage = location.pathname === "/profile";
 
+  // Geolocation detection
   useEffect(() => {
+    if (userLocation.lat && userLocation.lon) {
+      setLocationReady(true);
+      return;
+    }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -25,73 +76,134 @@ const ProductList = () => {
           });
           setLocationReady(true);
         },
-        () => setLocationReady(true)
+        () => {
+          setLocationReady(true);
+        }
       );
-    } else setLocationReady(true);
-  }, []);
+    } else {
+      setLocationReady(true);
+    }
+  }, [userLocation, setUserLocation]);
 
+  // Handle data fetching/refreshing
   useEffect(() => {
-    if (locationReady) loadProducts();
-  }, [locationReady]);
-
-  const loadProducts = async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAllProducts(userLocation.lat, userLocation.lon);
-      let filtered = Array.isArray(data) ? data : [];
-      if (isProfilePage) {
-        const currentUserId = localStorage.getItem("userId");
-        filtered = filtered.filter((p) => p.lenderId === currentUserId);
+    if (locationReady) {
+      const now = Date.now();
+      if (products.length === 0) {
+        fetchProducts(userLocation.lat, userLocation.lon, false);
+      } else if (!lastFetched || now - lastFetched > 30000) {
+        // Silent background refresh
+        fetchProducts(userLocation.lat, userLocation.lon, true);
       }
-      setProducts(filtered);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load products. Please try again.");
-      setProducts([]);
-    } finally {
-      setLoading(false);
+    }
+  }, [locationReady, userLocation, products.length, lastFetched, fetchProducts]);
+
+  // Track and save scroll position continuously
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 0) {
+        setScrollPosition(window.scrollY);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [setScrollPosition]);
+
+  // Restore scroll position
+  useEffect(() => {
+    if (scrollPosition > 0 && products.length > 0) {
+      const timer = setTimeout(() => {
+        window.scrollTo({ top: scrollPosition, behavior: "instant" });
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [products, scrollPosition]);
+
+  // Sync local query state if context query updates
+  useEffect(() => {
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
+
+  const handleSearchTrigger = () => {
+    setSearchQuery(localQuery);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      handleSearchTrigger();
     }
   };
 
-  const handleSearch = async () => {
-    if (!query.trim()) return loadProducts();
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await searchProducts(query, userLocation.lat, userLocation.lon);
-      let filtered = data || [];
-      if (isProfilePage) {
-        const currentUserId = localStorage.getItem("userId");
-        filtered = filtered.filter((p) => p.lenderId === currentUserId);
-      }
-      setProducts(filtered);
-    } catch (err) {
-      console.error(err);
-      setError("Search failed. Please try again.");
-      setProducts([]);
-    } finally {
-      setLoading(false);
+  // Filter and sort products client-side for absolute instant responses
+  const filteredProducts = useMemo(() => {
+    let list = [...products];
+
+    // Profile page filtering (only items listed by current user)
+    if (isProfilePage) {
+      const currentUserId = localStorage.getItem("userId");
+      list = list.filter((p) => p.lenderId === currentUserId);
     }
-  };
+
+    // Search query filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(
+        (p) =>
+          (p.name || "").toLowerCase().includes(q) ||
+          (p.description || "").toLowerCase().includes(q)
+      );
+    }
+
+    // Category filter
+    if (selectedCategory !== "All") {
+      list = list.filter((p) => matchCategory(p, selectedCategory));
+    }
+
+    // Sorting
+    if (sortBy === "price-asc") {
+      list.sort((a, b) => (a.price || 0) - (b.price || 0));
+    } else if (sortBy === "price-desc") {
+      list.sort((a, b) => (b.price || 0) - (a.price || 0));
+    } else if (sortBy === "name-asc") {
+      list.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    }
+
+    return list;
+  }, [products, searchQuery, selectedCategory, sortBy, isProfilePage]);
 
   const getDistance = (product) => {
     if (userLocation.lat && userLocation.lon && product.latitude && product.longitude) {
-      const distance = calculateDistance(
-        userLocation.lat,
-        userLocation.lon,
-        product.latitude,
-        product.longitude
-      );
-      return distance < 1
-        ? `${Math.round(distance * 1000)}m away`
-        : `${distance.toFixed(1)}km away`;
+      // Backend getAllProducts already returns products with calculated distances if available,
+      // or we can estimate/fallback to coordinate labels.
+      return product.locationName || "Nearby Listing";
     }
     return product.locationName || "Location not available";
   };
 
-  const handleKeyPress = (e) => e.key === "Enter" && handleSearch();
   const handleEdit = (id) => navigate(`/add-product/${id}`);
+
+  // Card Skeleton Loader Component for premium loading UX
+  const renderSkeletons = () => {
+    return Array.from({ length: 6 }).map((_, idx) => (
+      <div
+        key={idx}
+        className="bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col justify-between"
+      >
+        <div className="w-full aspect-[4/3] bg-slate-100 animate-pulse"></div>
+        <div className="p-6 space-y-4">
+          <div className="space-y-2">
+            <div className="h-3 w-1/3 bg-slate-100 rounded-full animate-pulse"></div>
+            <div className="h-5 w-3/4 bg-slate-100 rounded-full animate-pulse"></div>
+            <div className="h-3.5 w-5/6 bg-slate-100 rounded-full animate-pulse"></div>
+          </div>
+          <div className="flex justify-between items-center pt-4 border-t border-slate-100 animate-pulse">
+            <div className="h-5 w-1/4 bg-slate-100 rounded-full"></div>
+            <div className="h-9 w-1/3 bg-slate-100 rounded-full"></div>
+          </div>
+        </div>
+      </div>
+    ));
+  };
 
   return (
     <div className="max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8 mb-16">
@@ -118,8 +230,25 @@ const ProductList = () => {
         </Button>
       </div>
 
+      {/* Categories Horizontal Carousel Filter */}
+      <div className="mb-6 overflow-x-auto scrollbar-none flex gap-2 pb-2">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => setSelectedCategory(cat)}
+            className={`px-4 py-2 text-xs font-bold rounded-full border transition shrink-0 select-none ${
+              selectedCategory === cat
+                ? "bg-slate-900 border-slate-900 text-white shadow-sm"
+                : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+
       {/* Modern Search & Filters Panel */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm mb-8">
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm mb-8 space-y-4">
         <div className="flex flex-col md:flex-row gap-3">
           <div className="relative flex-1">
             <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
@@ -128,28 +257,38 @@ const ProductList = () => {
             <input
               type="text"
               placeholder="Search by product name, details or keywords..."
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              value={localQuery}
+              onChange={(e) => setLocalQuery(e.target.value)}
               onKeyPress={handleKeyPress}
               className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
             />
           </div>
-          <div className="flex gap-2 shrink-0">
+          <div className="flex flex-wrap gap-2 shrink-0">
+            {/* Sort Dropdown Selector */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-3 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+            >
+              <option value="default">Distance: Nearest first</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="name-asc">Name: A to Z</option>
+            </select>
+
             <Button
-              onClick={handleSearch}
-              loading={loading}
+              onClick={handleSearchTrigger}
               variant="primary"
               className="h-11 px-6"
             >
               Search
             </Button>
-            {query && (
+            {localQuery && (
               <Button
                 onClick={() => {
-                  setQuery("");
-                  loadProducts();
+                  setLocalQuery("");
+                  setSearchQuery("");
                 }}
-                disabled={loading}
                 variant="outline"
                 className="h-11 px-4"
               >
@@ -173,102 +312,96 @@ const ProductList = () => {
         </div>
       )}
 
-      {/* Large Loading State */}
-      {loading && products.length === 0 && (
-        <div className="flex justify-center my-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
-        </div>
-      )}
-
-      {/* Empty State */}
-      {!loading && products.length === 0 && !error && (
-        <div className="bg-blue-50/50 border border-blue-100 text-blue-700 text-center py-12 rounded-2xl flex flex-col items-center">
-          <span className="text-4xl mb-3">📦</span>
-          <h3 className="font-bold text-lg text-slate-800">No active products found</h3>
-          <p className="text-slate-500 text-sm mt-1 max-w-sm">
-            Try resetting your search query or list a new product in your community.
-          </p>
-        </div>
-      )}
-
-      {/* Products Grid */}
+      {/* Products Grid / Skeletons */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {products.map((p) => {
-          const prodId = p.id || p._id;
-          return (
-            <div
-              key={prodId}
-              className="bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
-            >
-              {p.images && p.images.length > 0 && (
-                <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden">
-                  <img
-                    src={p.images[0]}
-                    alt={p.name}
-                    className="w-full h-full object-cover group-hover:scale-[1.02] transition duration-500 cursor-pointer"
-                    onClick={() =>
-                      isProfilePage
-                        ? handleEdit(prodId)
-                        : navigate(`/product/${prodId}`)
-                    }
-                  />
-                  <span
-                    className={`absolute top-3.5 right-3.5 px-3 py-1 rounded-full text-xs font-bold text-white shadow-md ${
-                      p.available ? "bg-emerald-500" : "bg-red-500"
-                    }`}
-                  >
-                    {p.available ? "Available" : "Booked"}
-                  </span>
-                </div>
-              )}
-              
-              <div className="p-6 flex flex-col flex-1 justify-between">
-                <div>
-                  <div className="flex items-center gap-1 text-slate-400 text-xs font-semibold mb-2">
-                    <span>📍</span>
-                    <span className="truncate">{getDistance(p)}</span>
-                  </div>
-                  <h3
-                    onClick={() => !isProfilePage && navigate(`/product/${prodId}`)}
-                    className="font-bold text-slate-800 text-lg mb-2 cursor-pointer group-hover:text-blue-600 transition truncate"
-                  >
-                    {p.name}
-                  </h3>
-                  <p className="text-slate-500 text-sm mb-4 line-clamp-2 h-10">
-                    {p.description || "No description provided."}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-3.5 pt-4 border-t border-slate-100">
-                  <div className="flex justify-between items-baseline">
-                    <span className="text-xs text-slate-400 font-medium">Rental Price</span>
-                    <span className="text-blue-600 font-extrabold text-xl">
-                      ₹{p.price} <span className="text-slate-400 text-xs font-normal">/ day</span>
+        {loading && products.length === 0 ? (
+          renderSkeletons()
+        ) : filteredProducts.length === 0 && !loading && !error ? (
+          <div className="col-span-full bg-blue-50/50 border border-blue-100 text-blue-700 text-center py-12 rounded-2xl flex flex-col items-center">
+            <span className="text-4xl mb-3">📦</span>
+            <h3 className="font-bold text-lg text-slate-800">No active products found</h3>
+            <p className="text-slate-500 text-sm mt-1 max-w-sm">
+              Try resetting your search query or list a new product in your community.
+            </p>
+          </div>
+        ) : (
+          filteredProducts.map((p) => {
+            const prodId = p.id || p._id;
+            return (
+              <div
+                key={prodId}
+                className="bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
+              >
+                {p.images && p.images.length > 0 && (
+                  <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden">
+                    <img
+                      src={p.images[0]}
+                      alt={p.name}
+                      className="w-full h-full object-cover group-hover:scale-[1.02] transition duration-500 cursor-pointer"
+                      onClick={() =>
+                        isProfilePage
+                          ? handleEdit(prodId)
+                          : navigate(`/product/${prodId}`)
+                      }
+                    />
+                    <span
+                      className={`absolute top-3.5 right-3.5 px-3 py-1 rounded-full text-xs font-bold text-white shadow-md ${
+                        p.available ? "bg-emerald-500" : "bg-red-500"
+                      }`}
+                    >
+                      {p.available ? "Available" : "Booked"}
                     </span>
                   </div>
-                  
-                  {isProfilePage ? (
-                    <Button
-                      onClick={() => handleEdit(prodId)}
-                      variant="outline"
-                      className="w-full"
+                )}
+                
+                <div className="p-6 flex flex-col flex-1 justify-between">
+                  <div>
+                    <div className="flex items-center gap-1 text-slate-400 text-xs font-semibold mb-2">
+                      <span>📍</span>
+                      <span className="truncate">{getDistance(p)}</span>
+                    </div>
+                    <h3
+                      onClick={() => !isProfilePage && navigate(`/product/${prodId}`)}
+                      className="font-bold text-slate-800 text-lg mb-2 cursor-pointer group-hover:text-blue-600 transition truncate"
                     >
-                      Edit Listing
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => navigate(`/product/${prodId}`)}
-                      variant="secondary"
-                      className="w-full"
-                    >
-                      View Details
-                    </Button>
-                  )}
+                      {p.name}
+                    </h3>
+                    <p className="text-slate-500 text-sm mb-4 line-clamp-2 h-10">
+                      {p.description || "No description provided."}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col gap-3.5 pt-4 border-t border-slate-100">
+                    <div className="flex justify-between items-baseline">
+                      <span className="text-xs text-slate-400 font-medium">Rental Price</span>
+                      <span className="text-blue-600 font-extrabold text-xl">
+                        ₹{p.price} <span className="text-slate-400 text-xs font-normal">/ day</span>
+                      </span>
+                    </div>
+                    
+                    {isProfilePage ? (
+                      <Button
+                        onClick={() => handleEdit(prodId)}
+                        variant="outline"
+                        className="w-full"
+                      >
+                        Edit Listing
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => navigate(`/product/${prodId}`)}
+                        variant="secondary"
+                        className="w-full"
+                      >
+                        View Details
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );

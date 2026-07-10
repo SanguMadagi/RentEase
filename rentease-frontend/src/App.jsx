@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import ErrorBoundary from "./ErrorBoundary";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ProductProvider } from "./context/ProductContext";
 import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -232,7 +233,9 @@ function App() {
     <ErrorBoundary>
       <Router>
         <AuthProvider>
-          <AppRoutes />
+          <ProductProvider>
+            <AppRoutes />
+          </ProductProvider>
         </AuthProvider>
       </Router>
     </ErrorBoundary>
