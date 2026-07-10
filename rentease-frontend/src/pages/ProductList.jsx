@@ -1,304 +1,3 @@
-//import React, { useState, useEffect } from "react";
-//import {
-//  Container,
-//  Row,
-//  Col,
-//  Card,
-//  Form,
-//  Button,
-//  InputGroup,
-//  Alert,
-//  Spinner,
-//  Badge,
-//} from "react-bootstrap";
-//import { useNavigate, useLocation } from "react-router-dom";
-//import { searchProducts, getAllProducts, calculateDistance } from "../services/api";
-//
-//const ProductList = () => {
-//  const [query, setQuery] = useState("");
-//  const [products, setProducts] = useState([]);
-//  const [loading, setLoading] = useState(false);
-//  const [error, setError] = useState(null);
-//  const [userLocation, setUserLocation] = useState({ lat: null, lon: null });
-//  const [locationReady, setLocationReady] = useState(false);
-//
-//  const navigate = useNavigate();
-//  const location = useLocation();
-//  const isProfilePage = location.pathname === "/profile";
-//
-//  useEffect(() => {
-//    if (navigator.geolocation) {
-//      navigator.geolocation.getCurrentPosition(
-//        (position) => {
-//          setUserLocation({
-//            lat: position.coords.latitude,
-//            lon: position.coords.longitude,
-//          });
-//          setLocationReady(true);
-//        },
-//        () => {
-//          // Even if denied, mark as ready to load products
-//          setLocationReady(true);
-//        },
-//      );
-//    } else {
-//      setLocationReady(true);
-//    }
-//  }, []);
-//
-//  useEffect(() => {
-//    if (locationReady) {
-//      loadProducts();
-//    }
-//  }, [locationReady]);
-//
-//  const loadProducts = async () => {
-//    setLoading(true);
-//    setError(null);
-//    try {
-//      const data = await getAllProducts(userLocation.lat, userLocation.lon);
-//      let filtered = Array.isArray(data) ? data : [];
-//      if (isProfilePage) {
-//        const currentUserId = localStorage.getItem("userId");
-//        filtered = filtered.filter((p) => p.lenderId === currentUserId);
-//      }
-//      setProducts(filtered);
-//    } catch (err) {
-//      console.error(err);
-//      setError("Failed to load products. Please try again.");
-//      setProducts([]);
-//    } finally {
-//      setLoading(false);
-//    }
-//  };
-//
-//  const handleSearch = async () => {
-//    if (!query.trim()) {
-//      loadProducts();
-//      return;
-//    }
-//    setLoading(true);
-//    setError(null);
-//    try {
-//      const data = await searchProducts(
-//        query,
-//        userLocation.lat,
-//        userLocation.lon,
-//      );
-//      let filtered = data || [];
-//      if (isProfilePage) {
-//        const currentUserId = localStorage.getItem("userId");
-//        filtered = filtered.filter((p) => p.lenderId === currentUserId);
-//      }
-//      setProducts(filtered);
-//    } catch (err) {
-//      setError("Search failed. Please try again.");
-//      console.error(err);
-//      setProducts([]);
-//    } finally {
-//      setLoading(false);
-//    }
-//  };
-//
-//  const getDistance = (product) => {
-//    if (
-//      userLocation.lat &&
-//      userLocation.lon &&
-//      product.latitude &&
-//      product.longitude
-//    ) {
-//      const distance = calculateDistance(
-//        userLocation.lat,
-//        userLocation.lon,
-//        product.latitude,
-//        product.longitude,
-//      );
-//      return distance < 1
-//        ? `${Math.round(distance * 1000)}m away`
-//        : `${distance.toFixed(1)}km away`;
-//    }
-//    return product.locationName || "Location not available";
-//  };
-//
-//  const handleKeyPress = (e) => {
-//    if (e.key === "Enter") handleSearch();
-//  };
-//
-//  const handleEdit = (id) => {
-//    navigate(`/add-product/${id}`);
-//  };
-//
-//  return (
-//    <Container className="mt-4 mb-5">
-//      <Row>
-//        <Col>
-//          <div className="d-flex justify-content-between align-items-center mb-4">
-//            <h2 className="fw-bold text-primary mb-0">
-//              {isProfilePage ? "My Products" : "Available Products"}
-//            </h2>
-//            <Button
-//              variant="success"
-//              onClick={() => navigate("/add-product")}
-//              className="fw-semibold"
-//            >
-//              + Add Product
-//            </Button>
-//          </div>
-//
-//          {/* Search Bar */}
-//          <Row className="mb-4">
-//            <Col md={10} className="mx-auto">
-//              <InputGroup size="lg" className="shadow-sm">
-//                <Form.Control
-//                  type="text"
-//                  placeholder="Search products... (e.g., 'dslr')"
-//                  value={query}
-//                  onChange={(e) => setQuery(e.target.value)}
-//                  onKeyPress={handleKeyPress}
-//                  className="py-3"
-//                />
-//                <Button
-//                  variant="primary"
-//                  onClick={handleSearch}
-//                  disabled={loading}
-//                  className="px-4"
-//                >
-//                  {loading ? "Searching..." : "🔍 Search"}
-//                </Button>
-//                {query && (
-//                  <Button
-//                    variant="outline-secondary"
-//                    onClick={loadProducts}
-//                    disabled={loading}
-//                  >
-//                    Show All
-//                  </Button>
-//                )}
-//              </InputGroup>
-//            </Col>
-//          </Row>
-//
-//          {/* Error Message */}
-//          {error && (
-//            <Alert variant="danger" dismissible onClose={() => setError(null)}>
-//              {error}
-//            </Alert>
-//          )}
-//
-//          {/* Loading Spinner */}
-//          {loading && products.length === 0 && (
-//            <div className="text-center my-5">
-//              <Spinner animation="border" role="status">
-//                <span className="visually-hidden">Loading...</span>
-//              </Spinner>
-//            </div>
-//          )}
-//
-//          {/* No Products Message */}
-//          {!loading && products.length === 0 && !error && (
-//            <Alert variant="info" className="text-center">
-//              No products found. Be the first to list a product!
-//            </Alert>
-//          )}
-//
-//          {/* Products Grid */}
-//          {!loading && products.length > 0 && (
-//            <Row>
-//              {products.map((p) => (
-//                <Col key={p.id || p._id} md={6} lg={4} className="mb-4">
-//                  <Card
-//                    className="h-100 shadow-lg border-0"
-//                    style={{ cursor: "pointer", transition: "transform 0.2s" }}
-//                    onMouseEnter={(e) =>
-//                      (e.currentTarget.style.transform = "translateY(-5px)")
-//                    }
-//                    onMouseLeave={(e) =>
-//                      (e.currentTarget.style.transform = "translateY(0)")
-//                    }
-//                  >
-//                    {p.images && p.images.length > 0 && (
-//                      <div
-//                        style={{
-//                          height: "220px",
-//                          overflow: "hidden",
-//                          backgroundColor: "#f8f9fa",
-//                        }}
-//                      >
-//                        <img
-//                          src={p.images[0]}
-//                          style={{
-//                            width: "100%",
-//                            height: "100%",
-//                            objectFit: "cover",
-//                          }}
-//                          alt={p.name}
-//                          onClick={() =>
-//                            isProfilePage
-//                              ? handleEdit(p.id || p._id)
-//                              : navigate(`/product/${p.id || p._id}`)
-//                          }
-//                        />
-//                      </div>
-//                    )}
-//                    <Card.Body
-//                      className="p-4"
-//                      onClick={() =>
-//                        !isProfilePage && navigate(`/product/${p.id || p._id}`)
-//                      }
-//                    >
-//                      <Card.Title className="fw-bold mb-2">{p.name}</Card.Title>
-//                      <Card.Text
-//                        className="text-muted small mb-3"
-//                        style={{ minHeight: "48px" }}
-//                      >
-//                        {p.description
-//                          ? p.description.length > 100
-//                            ? p.description.substring(0, 100) + "..."
-//                            : p.description
-//                          : "No description available"}
-//                      </Card.Text>
-//                      <div className="mb-3">
-//                        <small className="text-muted d-flex align-items-center">
-//                          <span className="me-1">📍</span> {getDistance(p)}
-//                        </small>
-//                      </div>
-//                      <div className="d-flex justify-content-between align-items-center">
-//                        <h5 className="text-primary mb-0 fw-bold">
-//                          ₹{p.price}
-//                          <small className="text-muted">/day</small>
-//                        </h5>
-//                        <Badge
-//                          bg={p.available ? "success" : "danger"}
-//                          className="px-3 py-2"
-//                        >
-//                          {p.available ? "Available" : "Booked"}
-//                        </Badge>
-//                      </div>
-//                      {isProfilePage && (
-//                        <Button
-//                          variant="outline-primary"
-//                          size="sm"
-//                          className="mt-3"
-//                          onClick={() => handleEdit(p.id || p._id)}
-//                        >
-//                          Edit
-//                        </Button>
-//                      )}
-//                    </Card.Body>
-//                  </Card>
-//                </Col>
-//              ))}
-//            </Row>
-//          )}
-//        </Col>
-//      </Row>
-//    </Container>
-//  );
-//};
-//
-//export default ProductList;
-
-
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { searchProducts, getAllProducts, calculateDistance } from "../services/api";
@@ -394,136 +93,176 @@ const ProductList = () => {
   const handleEdit = (id) => navigate(`/add-product/${id}`);
 
   return (
-    <div className="max-w-6xl mx-auto mt-6 px-4 mb-10">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-blue-600">
-          {isProfilePage ? "My Products" : "Available Products"}
-        </h2>
+    <div className="max-w-7xl mx-auto mt-8 px-4 sm:px-6 lg:px-8 mb-16">
+      
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+        <div>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
+            {isProfilePage ? "My Listed Products" : "Explore Rental Products"}
+          </h1>
+          <p className="text-slate-500 text-sm mt-1">
+            {isProfilePage 
+              ? "Manage and edit items you have listed for rent." 
+              : "Discover properties, gadgets, and outdoor gears nearby."
+            }
+          </p>
+        </div>
         <button
           onClick={() => navigate("/add-product")}
-          className="bg-green-600 text-white font-semibold px-4 py-2 rounded hover:bg-green-700"
+          className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow-md transition text-sm flex items-center gap-1.5 shrink-0"
         >
-          + Add Product
+          <span>+</span> List an Item
         </button>
       </div>
 
-      {/* Search Bar */}
-      <div className="flex flex-col md:flex-row gap-2 mb-6 justify-center">
-        <input
-          type="text"
-          placeholder="Search products... (e.g., 'dslr')"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          onKeyPress={handleKeyPress}
-          className="flex-1 border rounded px-4 py-3 shadow focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
-        <button
-          onClick={handleSearch}
-          disabled={loading}
-          className="px-4 py-3 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-gray-400"
-        >
-          {loading ? "Searching..." : "🔍 Search"}
-        </button>
-        {query && (
-          <button
-            onClick={loadProducts}
-            disabled={loading}
-            className="px-4 py-3 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 disabled:bg-gray-100"
-          >
-            Show All
-          </button>
-        )}
+      {/* Modern Search & Filters Panel */}
+      <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-sm mb-8">
+        <div className="flex flex-col md:flex-row gap-3">
+          <div className="relative flex-1">
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center text-slate-400 pointer-events-none">
+              🔍
+            </span>
+            <input
+              type="text"
+              placeholder="Search by product name, details or keywords..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyPress={handleKeyPress}
+              className="w-full pl-10 pr-4 py-3 border border-slate-200 rounded-xl shadow-inner focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition"
+            />
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <button
+              onClick={handleSearch}
+              disabled={loading}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm transition shadow-sm disabled:opacity-50 flex items-center gap-2"
+            >
+              {loading ? "Searching..." : "Search"}
+            </button>
+            {query && (
+              <button
+                onClick={() => {
+                  setQuery("");
+                  loadProducts();
+                }}
+                disabled={loading}
+                className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Error Message */}
+      {/* Central Error Display */}
       {error && (
-        <div className="bg-red-100 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3.5 rounded-xl text-sm mb-6 flex justify-between items-center">
+          <span>{error}</span>
           <button
             onClick={() => setError(null)}
-            className="ml-4 font-bold"
+            className="font-bold ml-2 text-red-500 hover:text-red-700"
           >
             ✕
           </button>
         </div>
       )}
 
-      {/* Loading Spinner */}
+      {/* Large Loading State */}
       {loading && products.length === 0 && (
-        <div className="flex justify-center my-10">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
+        <div className="flex justify-center my-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
         </div>
       )}
 
-      {/* No Products Message */}
+      {/* Empty State */}
       {!loading && products.length === 0 && !error && (
-        <div className="bg-blue-50 text-blue-700 text-center px-4 py-3 rounded mb-4">
-          No products found. Be the first to list a product!
+        <div className="bg-blue-50/50 border border-blue-100 text-blue-700 text-center py-12 rounded-2xl flex flex-col items-center">
+          <span className="text-4xl mb-3">📦</span>
+          <h3 className="font-bold text-lg text-slate-800">No active products found</h3>
+          <p className="text-slate-500 text-sm mt-1 max-w-sm">
+            Try resetting your search query or list a new product in your community.
+          </p>
         </div>
       )}
 
       {/* Products Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {products.map((p) => (
-          <div
-            key={p.id || p._id}
-            className="bg-white rounded-lg shadow-lg overflow-hidden cursor-pointer transform transition hover:-translate-y-1"
-          >
-            {p.images && p.images.length > 0 && (
-              <div className="h-56 bg-gray-100 overflow-hidden">
-                <img
-                  src={p.images[0]}
-                  alt={p.name}
-                  className="w-full h-full object-cover"
-                  onClick={() =>
-                    isProfilePage
-                      ? handleEdit(p.id || p._id)
-                      : navigate(`/product/${p.id || p._id}`)
-                  }
-                />
-              </div>
-            )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {products.map((p) => {
+          const prodId = p.id || p._id;
+          return (
             <div
-              className="p-4"
-              onClick={() =>
-                !isProfilePage && navigate(`/product/${p.id || p._id}`)
-              }
+              key={prodId}
+              className="bg-white rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col justify-between group"
             >
-              <h3 className="font-bold text-lg mb-2">{p.name}</h3>
-              <p className="text-gray-600 text-sm mb-3 min-h-[48px]">
-                {p.description
-                  ? p.description.length > 100
-                    ? p.description.substring(0, 100) + "..."
-                    : p.description
-                  : "No description available"}
-              </p>
-              <div className="mb-3 text-gray-500 text-sm flex items-center">
-                <span className="mr-1">📍</span> {getDistance(p)}
-              </div>
-              <div className="flex justify-between items-center">
-                <h5 className="text-blue-600 font-bold">
-                  ₹{p.price}{" "}
-                  <span className="text-gray-500 text-sm font-normal">/day</span>
-                </h5>
-                <span
-                  className={`px-3 py-1 rounded text-white text-sm ${
-                    p.available ? "bg-green-500" : "bg-red-500"
-                  }`}
-                >
-                  {p.available ? "Available" : "Booked"}
-                </span>
-              </div>
-              {isProfilePage && (
-                <button
-                  onClick={() => handleEdit(p.id || p._id)}
-                  className="mt-3 w-full border border-blue-600 text-blue-600 rounded px-3 py-2 hover:bg-blue-50"
-                >
-                  Edit
-                </button>
+              {p.images && p.images.length > 0 && (
+                <div className="relative aspect-[4/3] bg-slate-50 overflow-hidden">
+                  <img
+                    src={p.images[0]}
+                    alt={p.name}
+                    className="w-full h-full object-cover group-hover:scale-[1.02] transition duration-500 cursor-pointer"
+                    onClick={() =>
+                      isProfilePage
+                        ? handleEdit(prodId)
+                        : navigate(`/product/${prodId}`)
+                    }
+                  />
+                  <span
+                    className={`absolute top-3.5 right-3.5 px-3 py-1 rounded-full text-xs font-bold text-white shadow-md ${
+                      p.available ? "bg-emerald-500" : "bg-red-500"
+                    }`}
+                  >
+                    {p.available ? "Available" : "Booked"}
+                  </span>
+                </div>
               )}
+              
+              <div className="p-6 flex flex-col flex-1 justify-between">
+                <div>
+                  <div className="flex items-center gap-1 text-slate-400 text-xs font-semibold mb-2">
+                    <span>📍</span>
+                    <span className="truncate">{getDistance(p)}</span>
+                  </div>
+                  <h3
+                    onClick={() => !isProfilePage && navigate(`/product/${prodId}`)}
+                    className="font-bold text-slate-800 text-lg mb-2 cursor-pointer group-hover:text-blue-600 transition truncate"
+                  >
+                    {p.name}
+                  </h3>
+                  <p className="text-slate-500 text-sm mb-4 line-clamp-2 h-10">
+                    {p.description || "No description provided."}
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3.5 pt-4 border-t border-slate-100">
+                  <div className="flex justify-between items-baseline">
+                    <span className="text-xs text-slate-400 font-medium">Rental Price</span>
+                    <span className="text-blue-600 font-extrabold text-xl">
+                      ₹{p.price} <span className="text-slate-400 text-xs font-normal">/ day</span>
+                    </span>
+                  </div>
+                  
+                  {isProfilePage ? (
+                    <button
+                      onClick={() => handleEdit(prodId)}
+                      className="w-full border border-blue-600 text-blue-600 hover:bg-blue-50 font-bold rounded-xl py-2.5 text-xs transition duration-300"
+                    >
+                      Edit Listing
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => navigate(`/product/${prodId}`)}
+                      className="w-full bg-slate-900 hover:bg-blue-600 text-white font-bold rounded-xl py-2.5 text-xs transition duration-300 shadow-sm"
+                    >
+                      View Details
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
