@@ -1,3 +1,35 @@
+//import React from "react";
+//import { Navigate } from "react-router-dom";
+//import { useAuth } from "../context/AuthContext";
+//
+//const ProtectedRoute = ({ children }) => {
+//  const { isAuthenticated, loading } = useAuth();
+//
+//  if (loading) {
+//    return (
+//      <div
+//        style={{
+//          display: "flex",
+//          justifyContent: "center",
+//          alignItems: "center",
+//          height: "100vh",
+//        }}
+//      >
+//        <div>Loading...</div>
+//      </div>
+//    );
+//  }
+//
+//  if (!isAuthenticated) {
+//    // Redirect to login if not authenticated
+//    return <Navigate to="/login" replace />;
+//  }
+//
+//  return children;
+//};
+//
+//export default ProtectedRoute;
+
 import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -7,14 +39,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
+      <div className="flex justify-center items-center h-screen">
         <div>Loading...</div>
       </div>
     );
