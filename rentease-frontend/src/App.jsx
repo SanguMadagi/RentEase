@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import ErrorBoundary from "./ErrorBoundary";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -11,6 +12,7 @@ import Navbar from "./components/Navbar";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 // Pages
+import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import OtpVerification from "./pages/OtpVerification";
@@ -106,6 +108,7 @@ function LogoutToast() {
 ----------------------------------------------------------*/
 function AppRoutes() {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -115,22 +118,35 @@ function AppRoutes() {
     );
   }
 
+  // Auth pages should not show the Navbar
+  const authPaths = [
+    "/login",
+    "/register",
+    "/verify-otp",
+    "/forgot-password",
+    "/reset-password",
+    "/set-password",
+    "/oauth2/callback",
+  ];
+  const showNavbar = !authPaths.includes(location.pathname);
+
   return (
     <>
       <ActivityTracker />
       <LogoutToast />
-      <Navbar />
+      {showNavbar && <Navbar />}
 
       <Routes>
         {/* PUBLIC ROUTES */}
+        <Route path="/" element={<Home />} />
         <Route
           path="/login"
-          element={isAuthenticated ? <Navigate to="/" replace /> : <Login />}
+          element={isAuthenticated ? <Navigate to="/dashboard" replace /> : <Login />}
         />
         <Route
           path="/register"
           element={
-            isAuthenticated ? <Navigate to="/" replace /> : <Register />
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <Register />
           }
         />
         <Route path="/verify-otp" element={<OtpVerification />} />
@@ -141,7 +157,7 @@ function AppRoutes() {
 
         {/* PROTECTED ROUTES */}
         <Route
-          path="/"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <ProductList />
@@ -200,7 +216,7 @@ function AppRoutes() {
         {/* FALLBACK */}
         <Route
           path="*"
-          element={<Navigate to={isAuthenticated ? "/" : "/login"} replace />}
+          element={<Navigate to={isAuthenticated ? "/dashboard" : "/"} replace />}
         />
       </Routes>
     </>
