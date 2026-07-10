@@ -1,6 +1,6 @@
 package com.rentease.security;
 
-import com.rentease.config.JwtUtil;
+import com.rentease.security.JwtUtil;
 import com.rentease.model.User;
 import com.rentease.repository.UserRepository;
 import jakarta.servlet.ServletException;

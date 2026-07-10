@@ -1,4 +1,4 @@
-package com.rentease.payload;
+package com.rentease.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

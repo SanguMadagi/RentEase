@@ -2,7 +2,7 @@ package com.rentease.controller;
 
 import com.rentease.model.User;
 import com.rentease.repository.UserRepository;
-import com.rentease.config.JwtUtil;
+import com.rentease.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.rentease.config;
+package com.rentease.security;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

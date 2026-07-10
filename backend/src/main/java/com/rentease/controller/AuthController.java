@@ -1,12 +1,12 @@
 package com.rentease.controller;
 
-import com.rentease.payload.LoginRequest;
-import com.rentease.payload.RegisterRequest;
-import com.rentease.payload.JwtResponse;
-import com.rentease.payload.OtpRequest;
+import com.rentease.dto.LoginRequest;
+import com.rentease.dto.RegisterRequest;
+import com.rentease.dto.JwtResponse;
+import com.rentease.dto.OtpRequest;
 import com.rentease.service.UserService;
 import com.rentease.service.OtpService;
-import com.rentease.config.JwtUtil;
+import com.rentease.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;

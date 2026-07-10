@@ -1,10 +1,10 @@
 package com.rentease.service;
 
 import com.rentease.model.User;
-import com.rentease.payload.LoginRequest;
-import com.rentease.payload.RegisterRequest;
+import com.rentease.dto.LoginRequest;
+import com.rentease.dto.RegisterRequest;
 import com.rentease.repository.UserRepository;
-import com.rentease.config.JwtUtil;
+import com.rentease.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

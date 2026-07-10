@@ -1,6 +1,6 @@
 //package com.rentease.security;
 //
-//import com.rentease.config.JwtUtil;
+//import com.rentease.security.JwtUtil;
 //import jakarta.servlet.FilterChain;
 //import jakarta.servlet.ServletException;
 //import jakarta.servlet.http.HttpServletRequest;
@@ -81,7 +81,7 @@
 //}
 package com.rentease.security;
 
-import com.rentease.config.JwtUtil;
+import com.rentease.security.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

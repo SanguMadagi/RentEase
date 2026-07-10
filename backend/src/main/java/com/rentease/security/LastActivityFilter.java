@@ -1,6 +1,6 @@
 package com.rentease.security;
 
-import com.rentease.config.JwtUtil;
+import com.rentease.security.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
