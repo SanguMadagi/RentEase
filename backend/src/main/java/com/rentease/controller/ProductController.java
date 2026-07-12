@@ -6,6 +6,7 @@ import com.rentease.model.User;
 import com.rentease.service.ProductService;
 import com.rentease.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,6 +21,7 @@ import java.util.Optional;
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@Slf4j
 public class ProductController {
 
     private final ProductService productService;
@@ -28,7 +30,7 @@ public class ProductController {
     @PostMapping
     public ResponseEntity<?> addProduct(@RequestBody Product product) {
         try {
-            System.out.println("POST /api/products called");
+            log.info("POST /api/products called");
             // Get current user from JWT
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             if (auth == null || !auth.isAuthenticated()) {
@@ -38,7 +40,7 @@ public class ProductController {
             }
             
             String email = auth.getName();
-            System.out.println("User email: " + email);
+            log.info("User email: {}", email);
             Optional<User> userOpt = userService.getUserByEmail(email);
             
             if (userOpt.isEmpty()) {
@@ -51,13 +53,12 @@ public class ProductController {
             product.setLenderId(userOpt.get().getId());
             product.setAvailable(true);
             
-            System.out.println("Adding product: " + product.getName());
+            log.info("Adding product: {}", product.getName());
             Product savedProduct = productService.addProduct(product);
-            System.out.println("Product saved with ID: " + savedProduct.getId());
+            log.info("Product saved with ID: {}", savedProduct.getId());
             return ResponseEntity.ok(savedProduct);
         } catch (Exception e) {
-            System.err.println("ERROR in addProduct: " + e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("ERROR in addProduct: {}: {}", e.getClass().getName(), e.getMessage(), e);
             Map<String, String> error = new HashMap<>();
             error.put("message", "Error: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
@@ -90,20 +91,19 @@ public class ProductController {
             @RequestParam(required = false) Double userLon
     ) {
         try {
-            System.out.println("GET /api/products called with userLat=" + userLat + ", userLon=" + userLon);
+            log.info("GET /api/products called with userLat={}, userLon={}", userLat, userLon);
             List<Product> products;
             if (userLat != null && userLon != null) {
-                System.out.println("Calling getAllProductsSortedByDistance");
+                log.info("Calling getAllProductsSortedByDistance");
                 products = productService.getAllProductsSortedByDistance(userLat, userLon);
             } else {
-                System.out.println("Calling getAllProducts");
+                log.info("Calling getAllProducts");
                 products = productService.getAllProducts();
             }
-            System.out.println("Found " + products.size() + " products");
+            log.info("Found {} products", products.size());
             return ResponseEntity.ok(products);
         } catch (Exception e) {
-            System.err.println("ERROR in getAllProducts: " + e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("ERROR in getAllProducts: {}: {}", e.getClass().getName(), e.getMessage(), e);
             Map<String, String> error = new HashMap<>();
             error.put("message", "Error fetching products: " + e.getMessage());
             return ResponseEntity.status(500).body(error);
@@ -185,8 +185,7 @@ public class ProductController {
                 return ResponseEntity.badRequest().body("Invalid search parameters");
             }
         } catch (Exception e) {
-            System.err.println("ERROR in searchProducts: " + e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("ERROR in searchProducts: {}: {}", e.getClass().getName(), e.getMessage(), e);
             Map<String, String> error = new HashMap<>();
             error.put("message", "Error searching products: " + e.getMessage());
             return ResponseEntity.status(500).body(error);

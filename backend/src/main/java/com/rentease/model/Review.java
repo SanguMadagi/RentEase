@@ -22,6 +22,7 @@ public class Review {
     private String userId;
     private int rating; // 1-5
     private String comment;
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 
 }

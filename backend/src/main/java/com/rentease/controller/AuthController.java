@@ -8,6 +8,7 @@ import com.rentease.service.UserService;
 import com.rentease.service.OtpService;
 import com.rentease.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,6 +26,7 @@ import java.util.UUID;
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @CrossOrigin(origins = "*")
+@Slf4j
 public class AuthController {
 
     private final UserService userService;
@@ -194,7 +196,7 @@ public class AuthController {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("userMessage", "Something went wrong during logout. Please try again.");
             errorResponse.put("debugId", UUID.randomUUID().toString());
-            System.err.println("Logout error: " + e.getMessage() + " [debugId: " + errorResponse.get("debugId") + "]");
+            log.error("Logout error: {} [debugId: {}]", e.getMessage(), errorResponse.get("debugId"), e);
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
@@ -228,7 +230,7 @@ public class AuthController {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("userMessage", "Failed to update activity. Please try again.");
             errorResponse.put("debugId", UUID.randomUUID().toString());
-            System.err.println("Update activity error: " + e.getMessage() + " [debugId: " + errorResponse.get("debugId") + "]");
+            log.error("Update activity error: {} [debugId: {}]", e.getMessage(), errorResponse.get("debugId"), e);
             return ResponseEntity.status(500).body(errorResponse);
         }
 

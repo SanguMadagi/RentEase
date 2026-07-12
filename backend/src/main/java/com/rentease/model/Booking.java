@@ -24,6 +24,7 @@ public class Booking {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
+    @Builder.Default
     private String paymentStatus = "PENDING"; // PENDING, PAID, CANCELLED
 
 }

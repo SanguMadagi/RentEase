@@ -3,6 +3,7 @@ package com.rentease.service;
 import com.rentease.model.Otp;
 import com.rentease.repository.OtpRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OtpService {
 
     private final OtpRepository otpRepository;
@@ -32,7 +34,7 @@ public class OtpService {
 
     // Send OTP to email
     public boolean sendOtp(String email, String purpose) {
-        System.out.println(email + " " + purpose);
+        log.info("sendOtp called for email={}, purpose={}", email, purpose);
         try {
             // Normalize purpose
             if (purpose == null) purpose = "LOGIN";
@@ -70,7 +72,7 @@ public class OtpService {
                     .build();
 
             otpRepository.save(otp);
-            System.out.println("Saved OTP for email=" + email + ", purpose=" + purpose + ", otp=" + otpCode);
+            log.info("Saved OTP for email={}, purpose={}", email, purpose);
             // Prepare subject & body depending on purpose
             String subject;
             String bodyIntro;
@@ -93,7 +95,7 @@ public class OtpService {
             emailService.sendEmail(email, subject, body);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error in sendOtp: ", e);
             return false;
         }
     }
@@ -110,14 +112,14 @@ public class OtpService {
 
         if (otpOptional.isPresent()) {
             Otp otp = otpOptional.get();
-            System.out.println("Found OTP in DB: " + otp.getOtpCode() + ", purpose=" + otp.getPurpose());
+            log.info("Found OTP in DB for purpose={}", otp.getPurpose());
             if (otp.getOtpCode().equals(otpCode)) {
                 otp.setUsed(true);
                 otpRepository.save(otp);
                 return true;
             }
         } else {
-            System.out.println("No valid OTP found for email=" + email + ", purpose=" + purpose);
+            log.info("No valid OTP found for email={}, purpose={}", email, purpose);
         }
 
         return false;

@@ -4,6 +4,7 @@ import com.rentease.model.Product;
 import com.rentease.model.ProductSearchQuery;
 import com.rentease.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -33,9 +35,11 @@ public class ProductService {
 
     public List<Product> findProductsByQuery(ProductSearchQuery query) {
         return productRepository.findAll().stream()
+                .peek(this::migrateProductCategory)
                 .filter(p -> query.getKeywords() == null || p.getName().toLowerCase().contains(query.getKeywords().toLowerCase()))
                 .filter(p -> query.getLocation() == null || p.getLocationName().equalsIgnoreCase(query.getLocation()))
-                .filter(p -> query.getCategory() == null || p.getDescription().equalsIgnoreCase(query.getCategory()))
+                .filter(p -> query.getCategory() == null || query.getCategory().isEmpty() || query.getCategory().equalsIgnoreCase("All")
+                        || (p.getCategory() != null && p.getCategory().equalsIgnoreCase(query.getCategory())))
                 .filter(p -> query.getPriceMin() == null || p.getPrice() >= query.getPriceMin())
                 .filter(p -> query.getPriceMax() == null || p.getPrice() <= query.getPriceMax())
                 .collect(Collectors.toList());
@@ -45,9 +49,8 @@ public class ProductService {
     // Get all products sorted by distance from user location
     public List<Product> getAllProductsSortedByDistance(Double userLat, Double userLon) {
         try {
-//            System.out.println("ProductService.getAllProductsSortedByDistance() called with userLat=" + userLat + ", userLon=" + userLon);
             List<Product> products = productRepository.findAll();
-//            System.out.println("Repository returned " + products.size() + " products");
+            products.forEach(this::migrateProductCategory);
 
             if (userLat != null && userLon != null) {
                 // Separate products with and without coordinates
@@ -64,7 +67,7 @@ public class ProductService {
                                 double distance = calculateDistance(userLat, userLon, lat, lon);
                                 withCoords.add(new ProductWithDistance(product, distance));
                             } catch (Exception e) {
-                                System.err.println("Error calculating distance for product " + product.getId() + ": " + e.getMessage());
+                                log.error("Error calculating distance for product {}: {}", product.getId(), e.getMessage());
                                 // If distance calculation fails, add to withoutCoords
                                 withoutCoords.add(product);
                             }
@@ -73,7 +76,7 @@ public class ProductService {
                             withoutCoords.add(product);
                         }
                     } catch (Exception e) {
-                        System.err.println("Error processing product: " + e.getMessage());
+                        log.error("Error processing product: {}", e.getMessage());
                         withoutCoords.add(product);
                     }
                 }
@@ -86,21 +89,19 @@ public class ProductService {
                 result.addAll(withCoords.stream().map(ProductWithDistance::getProduct).collect(Collectors.toList()));
                 result.addAll(withoutCoords);
 
-                System.out.println("Returning " + result.size() + " products (withCoords: " + withCoords.size() + ", withoutCoords: " + withoutCoords.size() + ")");
+                log.info("Returning {} products (withCoords: {}, withoutCoords: {})", result.size(), withCoords.size(), withoutCoords.size());
                 return result;
             }
 
-            System.out.println("Returning " + products.size() + " products (no sorting)");
+            log.info("Returning {} products (no sorting)", products.size());
             return products;
         } catch (Exception e) {
             // If anything fails, just return all products without sorting
-            System.err.println("ERROR in getAllProductsSortedByDistance: " + e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("ERROR in getAllProductsSortedByDistance: {}: {}", e.getClass().getName(), e.getMessage(), e);
             try {
                 return productRepository.findAll();
             } catch (Exception e2) {
-                System.err.println("CRITICAL: Cannot fetch products from repository: " + e2.getMessage());
-                e2.printStackTrace();
+                log.error("CRITICAL: Cannot fetch products from repository: {}", e2.getMessage(), e2);
                 return new ArrayList<>(); // Return empty list as last resort
             }
         }
@@ -109,9 +110,9 @@ public class ProductService {
     // Search products by name, sorted by distance
     public List<Product> searchProductsByName(String name, Double userLat, Double userLon) {
         try {
-            System.out.println("ProductService.searchProductsByName() called with name=" + name + ", userLat=" + userLat + ", userLon=" + userLon);
+            log.info("ProductService.searchProductsByName() called with name={}, userLat={}, userLon={}", name, userLat, userLon);
             List<Product> products = productRepository.findByNameContainingIgnoreCase(name);
-            System.out.println("Repository returned " + products.size() + " products for search: " + name);
+            log.info("Repository returned {} products for search: {}", products.size(), name);
 
             if (userLat != null && userLon != null) {
                 List<ProductWithDistance> withCoords = new ArrayList<>();
@@ -126,14 +127,14 @@ public class ProductService {
                                 double distance = calculateDistance(userLat, userLon, lat, lon);
                                 withCoords.add(new ProductWithDistance(product, distance));
                             } catch (Exception e) {
-                                System.err.println("Error calculating distance for product " + product.getId() + ": " + e.getMessage());
+                                log.error("Error calculating distance for product {}: {}", product.getId(), e.getMessage());
                                 withoutCoords.add(product);
                             }
                         } else {
                             withoutCoords.add(product);
                         }
                     } catch (Exception e) {
-                        System.err.println("Error processing product in search: " + e.getMessage());
+                        log.error("Error processing product in search: {}", e.getMessage());
                         withoutCoords.add(product);
                     }
                 }
@@ -144,15 +145,14 @@ public class ProductService {
                 result.addAll(withCoords.stream().map(ProductWithDistance::getProduct).collect(Collectors.toList()));
                 result.addAll(withoutCoords);
 
-                System.out.println("Returning " + result.size() + " products from search (withCoords: " + withCoords.size() + ", withoutCoords: " + withoutCoords.size() + ")");
+                log.info("Returning {} products from search (withCoords: {}, withoutCoords: {})", result.size(), withCoords.size(), withoutCoords.size());
                 return result;
             }
 
-            System.out.println("Returning " + products.size() + " products from search (no sorting)");
+            log.info("Returning {} products from search (no sorting)", products.size());
             return products;
         } catch (Exception e) {
-            System.err.println("ERROR in searchProductsByName: " + e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("ERROR in searchProductsByName: {}: {}", e.getClass().getName(), e.getMessage(), e);
             // Return empty list instead of throwing to prevent 500 errors
             return new ArrayList<>();
         }
@@ -193,6 +193,7 @@ public class ProductService {
             prod.setLatitude(updatedProduct.getLatitude());
             prod.setLongitude(updatedProduct.getLongitude());
             prod.setLocationName(updatedProduct.getLocationName());
+            prod.setCategory(updatedProduct.getCategory());
             prod.setImages(updatedProduct.getImages());
             prod.setAvailable(updatedProduct.isAvailable());
             return productRepository.save(prod);
@@ -212,13 +213,13 @@ public class ProductService {
     // Get all products (legacy - use getAllProductsSortedByDistance instead)
     public List<Product> getAllProducts() {
         try {
-            System.out.println("ProductService.getAllProducts() called");
+            log.info("ProductService.getAllProducts() called");
             List<Product> products = productRepository.findAll();
-            System.out.println("Repository returned " + products.size() + " products");
+            products.forEach(this::migrateProductCategory);
+            log.info("Repository returned {} products", products.size());
             return products;
         } catch (Exception e) {
-            System.err.println("ERROR in getAllProducts: " + e.getClass().getName() + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("ERROR in getAllProducts: {}: {}", e.getClass().getName(), e.getMessage(), e);
             // Return empty list instead of throwing to prevent 500 errors
             return new ArrayList<>();
         }
@@ -226,12 +227,13 @@ public class ProductService {
 
     public List<Product> searchProducts(ProductSearchQuery query, Double userLat, Double userLon, Double maxDistanceKm) {
         return productRepository.findAll().stream()
+                .peek(this::migrateProductCategory)
                 .filter(Product::isAvailable)
                 .filter(p -> query.getKeywords() == null || query.getKeywords().isEmpty()
                         || p.getName().toLowerCase().contains(query.getKeywords().toLowerCase())
                         || (p.getDescription() != null && p.getDescription().toLowerCase().contains(query.getKeywords().toLowerCase())))
-                .filter(p -> query.getCategory() == null || query.getCategory().isEmpty()
-                        || (p.getDescription() != null && p.getDescription().equalsIgnoreCase(query.getCategory())))
+                .filter(p -> query.getCategory() == null || query.getCategory().isEmpty() || query.getCategory().equalsIgnoreCase("All")
+                        || (p.getCategory() != null && p.getCategory().equalsIgnoreCase(query.getCategory())))
                 .filter(p -> query.getPriceMin() == null || p.getPrice() >= query.getPriceMin())
                 .filter(p -> query.getPriceMax() == null || p.getPrice() <= query.getPriceMax())
                 .filter(p -> userLat == null || userLon == null || maxDistanceKm == null
@@ -263,5 +265,79 @@ public class ProductService {
     // Search products by location (lat/lng range)
     public List<Product> searchProductsByLocation(double latMin, double latMax, double lonMin, double lonMax) {
         return productRepository.findByLatitudeBetweenAndLongitudeBetween(latMin, latMax, lonMin, lonMax);
+    }
+
+    // Helper to dynamically infer category for products
+    public String inferCategory(String name, String description, String existingCategory) {
+        if (existingCategory != null && !existingCategory.trim().isEmpty() && !existingCategory.equalsIgnoreCase("All")) {
+            String normalized = normalizeCategory(existingCategory);
+            if (normalized != null) return normalized;
+        }
+
+        String searchString = ((name != null ? name : "") + " " + (description != null ? description : "")).toLowerCase();
+
+        if (searchString.contains("camera") || searchString.contains("dslr") || searchString.contains("canon")
+                || searchString.contains("sony") || searchString.contains("nikon") || searchString.contains("gopro")
+                || searchString.contains("lens") || searchString.contains("tripod")) {
+            return "Cameras";
+        }
+        if (searchString.contains("watch") || searchString.contains("wearable") || searchString.contains("smartwatch")
+                || searchString.contains("titan") || searchString.contains("rolex") || searchString.contains("fitbit")) {
+            return "Wearables";
+        }
+        if (searchString.contains("laptop") || searchString.contains("computer") || searchString.contains("mobile")
+                || searchString.contains("phone") || searchString.contains("headphones") || searchString.contains("speaker")
+                || searchString.contains("projector") || searchString.contains("earbuds") || searchString.contains("tv")
+                || searchString.contains("television") || searchString.contains("monitor") || searchString.contains("keyboard")
+                || searchString.contains("mouse") || searchString.contains("console") || searchString.contains("ipad")
+                || searchString.contains("tablet") || searchString.contains("macbook")) {
+            return "Electronics";
+        }
+        if (searchString.contains("bicycle") || searchString.contains("football") || searchString.contains("bike")
+                || searchString.contains("sport") || searchString.contains("soccer") || searchString.contains("cricket")
+                || searchString.contains("racket") || searchString.contains("tennis") || searchString.contains("helmet")
+                || searchString.contains("ball")) {
+            return "Sports";
+        }
+        if (searchString.contains("tent") || searchString.contains("camping") || searchString.contains("backpack")
+                || searchString.contains("sleeping bag") || searchString.contains("outdoor")) {
+            return "Camping";
+        }
+        if (searchString.contains("chair") || searchString.contains("table") || searchString.contains("furniture")
+                || searchString.contains("desk") || searchString.contains("sofa") || searchString.contains("couch")
+                || searchString.contains("bed") || searchString.contains("stool")) {
+            return "Furniture";
+        }
+        if (searchString.contains("mixer") || searchString.contains("appliance") || searchString.contains("blender")
+                || searchString.contains("oven") || searchString.contains("microwave") || searchString.contains("fridge")
+                || searchString.contains("refrigerator") || searchString.contains("vacuum") || searchString.contains("iron")) {
+            return "Home Appliances";
+        }
+
+        return "Electronics"; // Default category
+    }
+
+    private String normalizeCategory(String category) {
+        String cat = category.trim().toLowerCase();
+        if (cat.contains("camera")) return "Cameras";
+        if (cat.contains("wearable") || cat.contains("watch") || cat.contains("titan")) return "Wearables";
+        if (cat.contains("electronic") || cat.contains("laptop") || cat.contains("mobile") || cat.contains("app")) return "Electronics";
+        if (cat.contains("sport") || cat.contains("bicycle") || cat.contains("football")) return "Sports";
+        if (cat.contains("camp") || cat.contains("tent")) return "Camping";
+        if (cat.contains("furnit") || cat.contains("chair") || cat.contains("table")) return "Furniture";
+        if (cat.contains("appliance") || cat.contains("mixer")) return "Home Appliances";
+        return null;
+    }
+
+    private void migrateProductCategory(Product p) {
+        if (p.getCategory() == null || p.getCategory().trim().isEmpty()) {
+            String category = inferCategory(p.getName(), p.getDescription(), null);
+            p.setCategory(category);
+            try {
+                productRepository.save(p);
+            } catch (Exception e) {
+                // Ignore silent migration errors
+            }
+        }
     }
 }

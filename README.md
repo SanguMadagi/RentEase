@@ -1,152 +1,223 @@
-# RentEase - Peer-to-Peer Rental Platform
+# RentEase 🏠✨
 
-RentEase is a modern, portfolio-quality, full-stack peer-to-peer property and asset rental platform. It enables users to browse, list, rent, book, review properties and goods dynamically, complete with verification, OTP protection, and map search.
+A modern full-stack rental marketplace built with Spring Boot and React.
 
-Designed using clean coding practices, modern architectures, and industry standards, this repository serves as a showcase of a production-ready React + Spring Boot web application.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-5.x-purple.svg)](https://vitejs.dev/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-NoSQL-forestgreen.svg)](https://www.mongodb.com/)
 
 ---
 
-## 🚀 Key Features
+## Project Overview
+
+RentEase is a modern, portfolio-quality, full-stack peer-to-peer (P2P) property and asset rental platform. It enables users to dynamically browse, list, rent, book, and review properties and physical goods. Designed with decoupled frontend-backend architectures, strict security protocols, and visual excellence, RentEase serves as a production-ready showcase of a web application built using Spring Boot and React.
+
+---
+
+## Features
 
 ### 🔐 Authentication & Security
-- **JWT Authentication:** Secure user authentication using JSON Web Tokens with automatic inactivity logout.
-- **Social Sign-In:** Google OAuth2 client integration for single-click sign-in.
-- **Two-Factor OTP Security:** OTP verification for registration, password reset, and sensitive actions via Spring Mail.
+- **Secure JWT Authentication:** Token-based login/logout system with automatic session monitoring and client-side inactivity timeouts.
+- **Social Sign-In:** Integration with **Google OAuth2** for seamless, single-click authentication.
+- **Two-Factor OTP Security:** One-Time Password verification for registration, password reset, and sensitive actions sent via Spring Mail.
 
-### 🏠 Listing & Booking
-- **Product Management:** Complete CRUD actions for property listings with image upload support.
-- **Dynamic Search & Filtering:** Distance-based location sorting (Haversine formula) and text search.
-- **Interactive Maps:** Leaflet maps integration to view and select properties geographically.
-- **Bookings & Reviews:** Seamless renting workflow with review stars and user feedback.
+### 🏠 Listing & Booking Engine
+- **Item Management:** Robust CRUD actions for property and asset listings, including coordinate specification and metadata.
+- **Dynamic Search & Filtering:** Distance-based location sorting using the **Haversine formula**, categories, and keyword searching.
+- **Interactive Maps:** Geospatial rendering with **Leaflet Maps**, displaying product locations dynamically on the UI.
+- **Bookings & Reviews:** Seamless end-to-end P2P renting workflow complete with five-star rating systems and feedback submissions.
 
-### 🛡️ Identity & Payment
-- **Aadhaar Verification:** Simulated official identity checks for security.
-- **Payment Gateway:** Secure checkout simulations.
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
-- **Core Library:** React 18 (Migrated from CRA to Vite for optimized, sub-second builds)
-- **Styling:** TailwindCSS & PostCSS
-- **Navigation:** React Router Dom v6
-- **Maps:** Leaflet & React-Leaflet
-- **HTTP Client:** Axios / Fetch API
-
-### Backend
-- **Framework:** Spring Boot 3.x (Java 17)
-- **Security:** Spring Security & OAuth2 Client
-- **Authentication:** JJWT (JSON Web Token)
-- **Data Persistence:** Spring Data MongoDB (NoSQL)
-- **Mailing:** Spring Boot Starter Mail (SMTP)
-- **Documentation:** Springdoc OpenAPI (Swagger UI)
+### 🛡️ Identity & Payments
+- **Aadhaar Verification:** Simulated official government identity checks to mimic real-world trust compliance.
+- **Demo Payment Environment:** A simulated checkout flow explaining mock-transaction logic and sandbox verification.
 
 ---
 
-## 📂 Project Architecture & Folder Structure
+## Tech Stack
 
-### Frontend Structure (`rentease-frontend/src`)
-```text
-src/
- ├── assets/          # Static assets (images, icons)
- ├── components/      # Reusable presentation and utility components
- │    ├── Auth/       # Authentication-specific components (LogoutButton)
- │    ├── MapView.jsx # Leaflet map integration
- │    ├── Navbar.jsx  # Main navigation header
- │    └── ProtectedRoute.jsx # Client-side route protector
- ├── context/         # AuthContext.jsx handles global states & session monitoring
- ├── hooks/           # Custom React hooks (for potential future extensions)
- ├── layouts/         # Page layout skeletons
- ├── pages/           # Page-level components
- ├── routes/          # Centrally defined routing configuration
- ├── services/        # Service layer (api.js, authService.js)
- ├── utils/           # Utility files (session.js for token tracking)
- ├── App.jsx          # React root application & Activity Tracker
- └── main.jsx         # Vite entry point
-```
+| Layer | Technologies Used | Description |
+|---|---|---|
+| **Frontend** | React 18, Vite 5, TailwindCSS, PostCSS, React Router v6 | Single Page Application with optimized sub-second hot-reloads and modular designs. |
+| **Backend** | Spring Boot 3.x, Spring Security, Spring Data MongoDB | Secure REST API backend managing data persistence and security filters. |
+| **Database** | MongoDB Atlas / Local MongoDB | NoSQL document-based database for dynamic schemas (products, users, bookings). |
+| **Security** | Spring Security OAuth2 Client, JJWT, BCrypt | Secure passwords, OAuth2 flows, and stateless JWT-based authorization. |
+| **Mailing** | Spring Boot Starter Mail, JavaMail | SMTP mail client configuration for OTP deliveries. |
+| **API Docs** | Springdoc OpenAPI, Swagger UI | Automatically generated Swagger endpoints spec. |
 
-### Backend Structure (`backend/src/main/java/com/rentease`)
-```text
-com.rentease/
- ├── config/          # Configurations (SecurityConfig, OpenApiConfig)
- ├── controller/      # Controllers handling HTTP requests
- ├── dto/             # Data Transfer Objects (LoginRequest, JwtResponse, ErrorResponse)
- ├── exception/       # Centralized Exception Handling (GlobalExceptionHandler, Custom Exceptions)
- ├── model/           # MongoDB Entities/Models (User, Product, Booking, Review, Otp)
- ├── repository/      # Spring Data MongoDB Repositories
- ├── security/        # JWT Filters, OAuth Success/Failure Handlers, Custom User Details
- └── service/         # Business Logic Layer (UserService, ProductService, OtpService, EmailService)
+---
+
+## Architecture
+
+RentEase follows a decoupled, clean-architecture design. The frontend client communicates with the backend REST API over HTTPS, and the backend delegates work through controller, service, and repository layers, persisted in a MongoDB cluster.
+
+```mermaid
+graph TD
+    A[React Frontend] -->|HTTP REST / JSON| B(Spring Boot Controller)
+    A -->|Auth Flow| C(Google OAuth2 / JWT Filter)
+    B --> Service[Service Layer - Business Logic]
+    C --> Service
+    Service --> Repos[Repository Layer - Spring Data]
+    Repos --> DB[(MongoDB Database)]
+    Service --> Mail[JavaMail SMTP Sender]
 ```
 
 ---
 
-## 🏁 Getting Started
+## Screenshots
 
-### 📋 Prerequisites
-- **Node.js** (v18 or higher)
+Here is a look at the RentEase user interface:
+
+### Landing Page
+![Landing](screenshots/home.png)
+
+### Login Page
+![Login](screenshots/login.png)
+
+### Explore Dashboard
+![Explore Dashboard](screenshots/dashboard.png)
+
+### Profile Page
+![Profile](screenshots/profile.png)
+
+### Product Details
+![Product Details](screenshots/product-details.png)
+
+### Add Product Page
+![Add Product](screenshots/add-product.png)
+
+---
+
+## Installation
+
+### Prerequisites
+- **Node.js** (v18.0.0 or higher)
 - **Java JDK** (v17 or higher)
 - **Maven** (v3.8 or higher)
-- **MongoDB** (Local instance or Atlas cloud URI)
+- **MongoDB** (Local instance running on `27017` or a MongoDB Atlas Cloud URI)
+
+### MongoDB Atlas Setup
+1. Sign in to [MongoDB Atlas](https://www.mongodb.com/cloud/atlas).
+2. Create a new shared cluster (free tier).
+3. Under **Database Access**, create a user with read/write privileges.
+4. Under **Network Access**, whitelist your IP address (or `0.0.0.0/0` for public testing).
+5. In **Clusters** -> **Connect**, select **Drivers** and copy your Connection String (URI). Use this connection string in your `.env` configuration.
 
 ---
 
-### 🔧 Configuration
+## Environment Variables
 
-#### 1. Backend Setup
+Copy `.env.example` templates to `.env` / `.env.local` files:
+
+### Backend Environment Variables (`backend/.env`)
+Create a `.env` file inside the `backend/` directory:
+```env
+PORT=8080
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/rentease?retryWrites=true&w=majority
+MONGODB_DATABASE=rentease
+
+# Email Config (Gmail App Password)
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=your_email@gmail.com
+MAIL_PASSWORD=your_app_specific_password
+
+# OAuth2 Google Client ID & Secret
+GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+# Security Configs
+SECRET_KEY=your_base64_encoded_jwt_secret_key_at_least_256_bits_long
+FRONTEND_URL=http://localhost:3000
+```
+
+### Frontend Environment Variables (`frontend/.env.local`)
+Create a `.env.local` file inside the `frontend/` directory:
+```env
+VITE_API_BASE_URL=http://localhost:8080
+```
+
+---
+
+## Running Backend
+
 1. Navigate to the `backend` directory:
    ```bash
    cd backend
    ```
-2. Copy `.env.example` to `.env` (or configure your environment variables):
-   ```bash
-   cp .env.example .env
-   ```
-3. Fill in your database URI, mail settings, Google Client credentials, and JWT secret key.
-4. Build the application using Maven:
+2. Build the application and package the JAR:
    ```bash
    mvn clean package -DskipTests
    ```
-5. Run the Spring Boot application:
+3. Run the Spring Boot application:
    ```bash
    mvn spring-boot:run
    ```
+   *The backend server will launch on [http://localhost:8080](http://localhost:8080)*
 
-#### 2. Frontend Setup
-1. Navigate to the `rentease-frontend` directory:
+---
+
+## Running Frontend
+
+1. Navigate to the `frontend` directory:
    ```bash
-   cd rentease-frontend
+   cd frontend
    ```
-2. Copy `.env.example` to `.env.local`:
-   ```bash
-   cp .env.example .env.local
-   ```
-3. Run npm install to fetch required modules:
+2. Install the node packages:
    ```bash
    npm install
    ```
-4. Launch the local development server:
+3. Run the development server:
    ```bash
    npm run dev
    ```
+   *The frontend client will start, typically accessible at [http://localhost:3000](http://localhost:3000)*
 
 ---
 
-## 📖 API Documentation (Swagger)
+## Folder Structure
 
-Once the backend is running, the interactive OpenAPI documentation can be accessed at:
-- **Swagger UI:** `http://localhost:8080/swagger-ui/index.html`
-- **API Spec:** `http://localhost:8080/v3/api-docs`
+### Frontend Structure (`/frontend`)
+```text
+frontend/
+ ├── public/          # Static public assets (favicon, logos, manifest)
+ └── src/
+      ├── components/ # Reusable UI components (Navbar, Button, Logo, MapView)
+      │    └── Auth/  # Authentication components
+      ├── context/    # Global states (AuthContext, ProductContext)
+      ├── pages/      # Route pages (Home, Login, Register, Profile, ProductDetails, etc.)
+      ├── services/   # REST API callers (api.js, authService.js)
+      ├── utils/      # Utility helpers (session.js for token & inactivity checks)
+      ├── App.jsx     # Root application component & Activity Tracker
+      └── main.jsx    # Entry point
+```
+
+### Backend Structure (`/backend`)
+```text
+backend/
+ └── src/main/java/com/rentease/
+      ├── config/     # SecurityConfig, OpenApiConfig
+      ├── controller/ # REST Endpoints (Auth, Booking, Product, Review, Profile)
+      ├── dto/        # Data Transfer Objects (LoginRequest, JwtResponse, RegisterRequest)
+      ├── exception/  # GlobalExceptionHandler and custom exceptions
+      ├── model/      # MongoDB documents (User, Product, Booking, Review, Otp)
+      ├── repository/ # MongoRepositories
+      ├── security/   # JWT Filters, OAuth Success/Failure Handlers, Custom UserDetailsService
+      └── service/    # Business services (UserService, ProductService, OtpService, EmailService)
+```
 
 ---
 
-## 💡 Future Enhancements
-- [ ] Integration of real-time WebSockets notifications for booking updates.
-- [ ] Integration of a real payment provider (e.g., Stripe, Razorpay).
-- [ ] Advanced recommendation algorithms for products based on user views.
-- [ ] AWS S3 integration for robust, production-grade image uploads.
+## Future Improvements
+- [ ] **AWS S3 Image Uploads:** Migrate local resource uploads to AWS S3 buckets.
+- [ ] **Stripe / Razorpay Payment Integration:** Integrate real credit card checkouts.
+- [ ] **WebSockets Notification System:** Send real-time booking updates and messages.
+- [ ] **Advanced Matching Engine:** Recommend nearby products using collaborative filtering.
 
 ---
 
-## 📄 License
-This project is licensed under the MIT License - see the LICENSE file for details.
+## Author
+**Your Name**
+- GitHub: [@yourusername](https://github.com/yourusername)
+- LinkedIn: [@yourlinkedin](https://linkedin.com/in/yourusername)

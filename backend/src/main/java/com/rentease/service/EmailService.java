@@ -1,6 +1,7 @@
 package com.rentease.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -25,13 +27,13 @@ public class EmailService {
             mailSender.send(message);
         } catch (Exception e) {
             // Log error but don't throw - OTP will still be saved in DB
-            System.err.println("Failed to send email: " + e.getMessage());
+            log.error("Failed to send email: {}", e.getMessage());
             // In development, print OTP to console
-            System.out.println("=== OTP EMAIL (DEV MODE) ===");
-            System.out.println("To: " + to);
-            System.out.println("Subject: " + subject);
-            System.out.println("Body: " + body);
-            System.out.println("===========================");
+            log.info("=== OTP EMAIL (DEV MODE) ===");
+            log.info("To: {}", to);
+            log.info("Subject: {}", subject);
+            log.info("Body: {}", body);
+            log.info("===========================");
         }
     }
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,7 @@ import java.util.UUID;
  */
 @Component
 @Order(1)
+@Slf4j
 public class LastActivityFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -85,7 +87,7 @@ public class LastActivityFilter extends OncePerRequestFilter {
                 
             } catch (Exception e) {
                 // Log error for developers
-                System.err.println("LastActivityFilter error: " + e.getMessage());
+                log.error("LastActivityFilter error: {}", e.getMessage(), e);
                 // Continue to next filter - let JwtAuthenticationFilter handle it
             }
         }
@@ -97,7 +99,7 @@ public class LastActivityFilter extends OncePerRequestFilter {
         String debugId = UUID.randomUUID().toString();
         
         // Log full error for developers
-        System.err.println("LastActivityFilter: " + userMessage + " [debugId: " + debugId + "]");
+        log.error("LastActivityFilter: {} [debugId: {}]", userMessage, debugId);
         
         Map<String, Object> errorResponse = new HashMap<>();
         errorResponse.put("userMessage", userMessage);

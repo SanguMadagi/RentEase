@@ -25,6 +25,7 @@ public class Product {
     private double latitude;
     private double longitude;
     private String locationName; // e.g., "Bangalore, Karnataka"
+    private String category;
 
     private List<String> images; // Base64 encoded images or image URLs
 
