@@ -1,8 +1,13 @@
-<h1 align="center">
-  <img src="frontend/public/logo.svg" width="38" height="38" alt="RentEase Logo" style="vertical-align: middle; margin-right: 8px;" />
-  RentEase
-</h1>
-<p align="center">A modern full-stack rental marketplace built with Spring Boot and React.</p>
+<div align="center">
+  <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+    <img src="frontend/public/logo.svg" width="42" height="42" alt="RentEase Logo" />
+    <h1 style="margin: 0;">RentEase</h1>
+  </div>
+</div>
+
+<p align="center">
+  A modern full-stack rental marketplace built with Spring Boot and React.
+</p>
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
