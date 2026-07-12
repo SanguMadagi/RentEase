@@ -1,8 +1,9 @@
-# RentEase 🏠✨
+<div align="center">
+  <img src="frontend/public/logo.svg" width="80" height="80" alt="RentEase Logo" />
+  <h1>RentEase</h1>
+  <p>A modern full-stack rental marketplace built with Spring Boot and React.</p>
+</div>
 
-A modern full-stack rental marketplace built with Spring Boot and React.
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.x-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![React](https://img.shields.io/badge/React-18-blue.svg)](https://react.dev/)
 [![Vite](https://img.shields.io/badge/Vite-5.x-purple.svg)](https://vitejs.dev/)
@@ -30,8 +31,8 @@ RentEase is a modern, portfolio-quality, full-stack peer-to-peer (P2P) property 
 - **Bookings & Reviews:** Seamless end-to-end P2P renting workflow complete with five-star rating systems and feedback submissions.
 
 ### 🛡️ Identity & Payments
-- **Aadhaar Verification:** Simulated official government identity checks to mimic real-world trust compliance.
-- **Demo Payment Environment:** A simulated checkout flow explaining mock-transaction logic and sandbox verification.
+- **Aadhaar Verification:** A simulated verification workflow created for demonstration purposes only. It does not connect with any official Aadhaar database, UIDAI services, government APIs, or perform real identity verification.
+- **Demo Payment Environment:** A simulated payment checkout flow created to demonstrate payment workflow and transaction handling. No real payment gateway integration or real monetary transactions are involved.
 
 ---
 
@@ -218,6 +219,6 @@ backend/
 ---
 
 ## Author
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [@yourlinkedin](https://linkedin.com/in/yourusername)
+**Sangamesh Gangadhar Madagi**
+- GitHub: [@SanguMadagi](https://github.com/SanguMadagi)
+- LinkedIn: [Sangamesh Madagi](https://www.linkedin.com/in/sangamesh-madagi-a5b51a311/)
